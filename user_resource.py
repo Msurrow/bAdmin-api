@@ -34,7 +34,7 @@ class Users(Resource):
         self.args_parser.add_argument('clubs', type=_is_list_with_valid_clubs, location='json', required=False, nullable=False, help="Attribute is not required, but if provided user clubs list must be of type list and not null, but can be empty.")
         self.args_parser.add_argument('practices', type=_is_list_with_valid_practices, location='json', required=False, nullable=False, help="Attribute is not required, but if provided user practices' list must be of type list and not null, but can be empty.")
 
-        args = self.args_parser.parse_args(strict=True) 
+        args = self.args_parser.parse_args(strict=True)
 
         # Ekstra input validation: Name attribute cannot be empty.
         if args['name'] is not None:
@@ -130,7 +130,8 @@ def _is_list_with_valid_clubs(listClubIDs, name):
             raise ValueError()
         # TODO
         # if does_all_clubs_exist(lst):
-            # raise ValueError("The parameter '{}' contains IDs that are not valid clubIDs. Input was: {}".format(name, listClubIDs))
+            # raise ValueError("The parameter '{}' contains IDs that are not
+            # valid clubIDs. Input was: {}".format(name, listClubIDs))
         pass
     except:
         raise ValueError("The parameter '{}' is not of type list. Input was: {}".format(name, listClubIDs))
@@ -148,7 +149,8 @@ def _is_list_with_valid_practices(listPracticeIDs, name):
             raise ValueError()
         # TODO
         # if does_all_clubs_exist(lst):
-            # raise ValueError("The parameter '{}' contains IDs that are not valid practiceIDs. Input was: {}".format(name, listClubIDs))
+            # raise ValueError("The parameter '{}' contains IDs that are not
+            # valid practiceIDs. Input was: {}".format(name, listClubIDs))
         pass
     except:
         raise ValueError("The parameter '{}' is not of type list. Input was: {}".format(name, listPracticeIDs))

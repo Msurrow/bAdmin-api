@@ -24,7 +24,7 @@ class Clubs(Resource):
 
     def post(self):
         # No ID required when creating club. Backedn will create ID.
-        self.args_parser = reqparse.RequestParser()
+        self.args_parser = reqparse.RequestParser(bundle_errors=True)
         self.args_parser.add_argument('name', type=str, required=True, nullable=False, help="Attribute is required. Club name must be of type string and not null, and cannot be empty.")
         self.args_parser.add_argument('admins', type=_is_list_with_valid_userIDs, required=False, nullable=False, help="Attribute is not required, but if provided club admin list must be of type list and not null, but can be empty.")
         self.args_parser.add_argument('coaches', type=_is_list_with_valid_userIDs, required=False, nullable=False, help="Attribute is not required, but if provided club coaches list must be of type list and not null, but can be empty.")
@@ -41,7 +41,7 @@ class Clubs(Resource):
         CLUBS.append({"id": len(CLUBS)+1, "name": args['name'], "admin": args['admins'], "coaches": args['coaches'], "members": args['members'], "membershipRequests": args['membershipRequests']})
         return jsonify(args)
 
-# Resource for handling user-pecific actions on User resource
+# Resource for handling club-pecific actions on Club resource
 class Club(Resource):
 
     def get(self, clubID):
@@ -50,8 +50,8 @@ class Club(Resource):
 
     def put(self, clubID):
         # Set JSON args requirements in reqparser for this method.
-        # UserID is part of URL not args. Dont validate with args_parser.
-        # userID type is enforced by Flask-RESTful
+        # ClubID is part of URL not args. Dont validate with args_parser.
+        # clubID type is enforced by Flask-RESTful
         self.args_parser = reqparse.RequestParser(bundle_errors=True)
         self.args_parser.add_argument('name', type=str, required=False, nullable=False, help="Attribute is not required, but if provided club name must be of type string and not null, and cannot be empty.")
         self.args_parser.add_argument('admins', type=_is_list_with_valid_userIDs, required=False, nullable=False, help="Attribute is not required, but if provided club admin list must be of type list and not null, but can be empty.")
