@@ -22,7 +22,7 @@ api.add_resource(ClubMembers, "/club/<int:clubID>/members", methods=["GET"])
 api.add_resource(ClubPractices, "/club/<int:clubID>/practices", methods=["GET"])
 
 api.add_resource(Practices, "/practice", methods=["GET", "POST"])
-api.add_resource(Practice, "/practice/<int:clubID>", methods=["GET", "PUT", "DELETE"])
+api.add_resource(Practice, "/practice/<int:practiceID>", methods=["GET", "PUT", "DELETE"])
 
 
 @app.route("/")
