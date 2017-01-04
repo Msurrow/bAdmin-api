@@ -4,18 +4,6 @@ from flask_restful import Resource, reqparse, abort
 USERS = [{"id":0, "name": "foobar", "email": "", "phone": 00000000, "clubs": [999,888], "practices": [0,1]}]
 
 """
-User datatype:
-{
-    id: <int>, not null
-    name: <string>, not null
-    email: <string>, valid email
-    phone: <int:8>, 8-digits valid DK phonenumber
-    clubs: <list:int>, int must be id of existing club
-    practices: <list:int>, int must be id of existing practice
-}
-"""
-
-"""
 Resources
 """
 # Resource for handling non-user-pecific actions on User resource

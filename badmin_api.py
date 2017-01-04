@@ -6,9 +6,14 @@ from flask_cors import CORS
 from user_resource import Users, User, UserClubs, UserPractices
 from club_resource import Clubs, Club, ClubMembers, ClubPractices
 from practice_resource import Practices, Practice
+# Import DB resources
+from flask_sqlalchemy import SQLAlchemy
+
 
 app = Flask(__name__)
 CORS(app)
+
+# Setup API resources
 api = Api(app)
 
 api.add_resource(Users, "/user", methods=["GET", "POST"])
@@ -24,7 +29,13 @@ api.add_resource(ClubPractices, "/club/<int:clubID>/practices", methods=["GET"])
 api.add_resource(Practices, "/practice", methods=["GET", "POST"])
 api.add_resource(Practice, "/practice/<int:practiceID>", methods=["GET", "PUT", "DELETE"])
 
+# Setup database
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////tmp/test.db'
+db = SQLAlchemy()
+kan ikke lave create_all i python interp, det virker ikke pt med opdelt model i filer. se SO link åben
+db.init_app(app)
 
+# API Routes that Flask-Restful API doesn't handle
 @app.route("/")
 def index():
     return jsonify({"TODO":"Please write documentation"})

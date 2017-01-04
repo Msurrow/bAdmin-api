@@ -3,18 +3,6 @@ from flask_restful import Resource, reqparse, abort
 
 CLUBS = [{"id": 0, "name": "Andeby Badmintonklub", "admins": [], "coaches": [], "membershipRequests": [], "members": [0]}]
 
-"""
-Club datatype:
-{
-    id: <int>, not null
-    name: <string>, not null
-    admins: <list:int>, not empty, int must be id of existing User
-    coaches: <list:int>, int must be id of existing User
-    membershipRequests: <list:int, int must be id of existing User
-    members: <list:int>, int must be id of existing User
-}
-"""
-
 # Resource for handling non-club-pecific actions on Club resource
 class Clubs(Resource):
 
