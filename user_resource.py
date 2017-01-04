@@ -106,7 +106,6 @@ class UserPractices(Resource):
 """
 CUSTOM VALIDATORS FOR REQPARSE / VALIDATING INPUT
 """
-
 def _is_list_with_valid_clubs(listClubIDs, name):
     lst = listClubIDs
     try:
