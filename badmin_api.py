@@ -7,7 +7,7 @@ from user_resource import Users, User, UserClubs, UserPractices
 from club_resource import Clubs, Club, ClubMembers, ClubPractices
 from practice_resource import Practices, Practice
 # Import DB resources
-from flask_sqlalchemy import SQLAlchemy
+from db_helper import db
 
 
 app = Flask(__name__)
@@ -30,9 +30,7 @@ api.add_resource(Practices, "/practice", methods=["GET", "POST"])
 api.add_resource(Practice, "/practice/<int:practiceID>", methods=["GET", "PUT", "DELETE"])
 
 # Setup database
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////tmp/test.db'
-db = SQLAlchemy()
-kan ikke lave create_all i python interp, det virker ikke pt med opdelt model i filer. se SO link åben
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
 db.init_app(app)
 
 # API Routes that Flask-Restful API doesn't handle

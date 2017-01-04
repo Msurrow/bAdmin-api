@@ -1,4 +1,4 @@
-from badmin_api import db
+from db_helper import db
 
 """
 User datatype:
@@ -13,10 +13,18 @@ User datatype:
 """
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True, unique=True, nullable=False)
-    name = db.Column(db.String(200), unique=False, nullable=False)
-    email = db.Column(db.String(200), unique=True, nullable=False)
+    name = db.Column(db.String(500), unique=False, nullable=False)
+    email = db.Column(db.String(500), unique=True, nullable=False)
     phone = db.Column(db.Integer, unique=False, nullable=True)
-    # 'clubs' attribute is defined in club_model
-    # 'adminOfClubs' attribute is defined in club_model
-    # 'coachInClubs' attribute is defined in club_model
-    # 'clubMembershipRequests' attribute is defined in club_model
+    # 'clubs' attribute/backref is defined in club_model
+    # 'adminOfClubs' attribute/backref is defined in club_model
+    # 'coachInClubs' attribute/backref is defined in club_model
+    # 'clubMembershipRequests' attribute/backref is defined in club_model
+    # 'invitedPractices'  attribute/backref is defined in practice_model
+    # 'confirmedPractices'  attribute/backref is defined in practice_model
+    # 'declinedPractices'  attribute/backref is defined in practice_model
+
+    def __init__(self, name, email, phone):
+        self.name = name
+        self.email = email
+        self.phone = phone
