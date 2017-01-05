@@ -16,7 +16,7 @@ Club datatype:
 class Club(db.Model):
     id = db.Column(db.Integer, primary_key=True, unique=True, nullable=False)
     name = db.Column(db.String(500), unique=True, nullable=False)
-    members = db.relationship('User', secondary=user_member_club, backref=db.backref('clubs', lazy='dynamic'))
+    members = db.relationship('User', secondary=user_member_club, backref=db.backref('clubs'))
     admins = db.relationship('User', secondary=user_admin_club, backref=db.backref('adminOfClubs', lazy='dynamic'))
     coaches = db.relationship('User', secondary=user_coach_club, backref=db.backref('coachInClubs', lazy='dynamic'))
     membershipRequests = db.relationship('User', secondary=user_membershiprequest_club, backref=db.backref('clubMembershipRequests', lazy='dynamic'))
