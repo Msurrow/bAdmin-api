@@ -10,8 +10,6 @@ import practice_model
 from sqlalchemy.exc import IntegrityError
 from db_helper import db
 
-USERS = [{"id":0, "name": "foobar", "email": "", "phone": 00000000, "clubs": [999,888], "practices": [0,1]}]
-
 """
 Resources
 """
@@ -143,7 +141,7 @@ class User(Resource):
             debug_code = debug_code_generator.gen_debug_code()
             print("SQL IntegrityError happend in user_resource.py. Debug code: {}. Stacktrace follows: ".format(debug_code))
             print(err)
-            abort(400, message="Somehow the validations passed but the input still did not match the SQL schema. For security reasons no further details on the error will be provided other than a debug-code: {}. Please email the API developer with the debug-code and yell at him in general!".format(debug_code))
+            abort(400, message="Somehow the validations passed but the input still did not match the SQL schema. For security reasons no further details on the error will be provided other than a debug-code: {}. Please email the API developer with the debug-code and yell at him!".format(debug_code))
 
         return jsonify(self.user_schema.dump(user).data)
 

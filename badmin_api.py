@@ -2,10 +2,9 @@ import sys
 from flask import Flask, jsonify
 from flask_restful import Api
 from flask_cors import CORS
-from flask_marshmallow import Marshmallow
 # Import API resources
-from user_resource import Users, User, UserClubs, UserPractices
-from club_resource import Clubs, Club, ClubMembers, ClubPractices
+from user_resource import Users, User
+from club_resource import Clubs, Club
 from practice_resource import Practices, Practice
 # Import DB resources
 from db_helper import db
@@ -22,8 +21,6 @@ api.add_resource(User, "/user/<int:userID>", methods=["GET", "PUT"])
 
 api.add_resource(Clubs, "/club", methods=["GET", "POST"])
 api.add_resource(Club, "/club/<int:clubID>", methods=["GET", "PUT"])
-api.add_resource(ClubMembers, "/club/<int:clubID>/members", methods=["GET"])
-api.add_resource(ClubPractices, "/club/<int:clubID>/practices", methods=["GET"])
 
 api.add_resource(Practices, "/practice", methods=["GET", "POST"])
 api.add_resource(Practice, "/practice/<int:practiceID>", methods=["GET", "PUT", "DELETE"])
