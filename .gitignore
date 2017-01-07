@@ -1,3 +1,4 @@
 VIRTUAL/
 __pycache__/
+run.sh
 test.db

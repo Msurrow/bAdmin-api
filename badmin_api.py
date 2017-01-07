@@ -1,4 +1,4 @@
-import sys
+import sys, os
 from flask import Flask, jsonify
 from flask_restful import Api
 from flask_cors import CORS
@@ -26,7 +26,7 @@ api.add_resource(Practices, "/practice", methods=["GET", "POST"])
 api.add_resource(Practice, "/practice/<int:practiceID>", methods=["GET", "PUT", "DELETE"])
 
 # Setup database
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URL']
 db.init_app(app)
 # Tell sqlalchemy hat this app is the current app
 app.app_context().push()
