@@ -25,7 +25,7 @@ api.add_resource(Club, "/club/<int:clubID>", methods=["GET", "PUT"])
 api.add_resource(Practices, "/practice", methods=["GET", "POST"])
 api.add_resource(Practice, "/practice/<int:practiceID>", methods=["GET", "PUT", "DELETE"])
 
-# Setup database
+# Setup database   
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URL']
 db.init_app(app)
 # Tell sqlalchemy hat this app is the current app
