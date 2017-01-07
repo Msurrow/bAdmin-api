@@ -54,9 +54,9 @@ class Clubs(Resource):
             debug_code = debug_code_generator.gen_debug_code()
             print("SQL IntegrityError happend in club_resource.py. Debug code: {}. Stacktrace follows: ".format(debug_code))
             print(err)
-            abort(400, message="Somehow the validations passed but the input still did not match the SQL schema. For security reasons no further details on the error will be provided other than a debug-code: {}. Please email the API developer with the debug-code and yell at him in general!".format(debug_code))
+            abort(400, message="Somehow the validations passed but the input still did not match the SQL schema. For security reasons no further details on the error will be provided other than a debug-code: {}. Please email the API developer with the debug-code and yell at him!".format(debug_code))
 
-        return jsonify(club_model.Club.dump(club).data)
+        return jsonify(club_model.dump(club).data)
 
 # Resource for handling club-pecific actions on Club resource
 class Club(Resource):
@@ -92,7 +92,7 @@ class Club(Resource):
         if club is None:
             abort(404, message="Club with ID {} does not exist.".format(clubID))
 
-        # Do relative update: if the user attribute is part of the arguments
+        # Do relative update: if the attribute is part of the arguments
         # then update it, otherwise leave as is.
 
         # Ekstra input validation: Name attribute cannot be empty.
