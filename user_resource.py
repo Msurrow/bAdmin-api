@@ -52,7 +52,7 @@ class Users(Resource):
             debug_code = debug_code_generator.gen_debug_code()
             print("SQL IntegrityError happend in user_resource.py. Debug code: {}. Stacktrace follows: ".format(debug_code))
             print(err)
-            abort(400, message="Somehow the validations passed but the input still did not match the SQL schema. For security reasons no further details on the error will be provided other than a debug-code: {}. Please email the API developer with the debug-code and yell at him in general!".format(debug_code))
+            abort(400, message="Somehow the validations passed but the input still did not match the SQL schema. For security reasons no further details on the error will be provided other than a debug-code: {}. Please email the API developer with the debug-code and yell at him!".format(debug_code))
 
         return jsonify(self.user_schema.dump(user).data)
 
@@ -90,7 +90,7 @@ class User(Resource):
         if user is None:
             abort(404, message="User with ID {} does not exist.".format(userID))
 
-        # Do relative update: if the user attribute is part of the arguments
+        # Do relative update: if the attribute is part of the arguments
         # then update it, otherwise leave as is.
 
         # Update name attribute if in args.
