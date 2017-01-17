@@ -22,7 +22,7 @@ class Users(Resource):
 
     def get(self):
         # Get on user resource lists all users
-        users = user_model.User.query.filter(1==1).all()
+        users = user_model.User.query.filter(1 == 1).all()
         return jsonify(self.users_schema.dump(users).data)
 
     def post(self):

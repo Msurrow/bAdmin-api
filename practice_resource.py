@@ -1,8 +1,6 @@
 from flask import jsonify
 from flask_restful import Resource, reqparse, abort
-from datetime import datetime
 import dateutil.parser
-from club_resource import _is_list_with_valid_userIDs
 import debug_code_generator
 # Imports for serialization (marshmallow)
 from serialization_schemas import PracticeSchema
@@ -33,7 +31,7 @@ class Practices(Resource):
         # The validator function will check for valid datatime and return a datetime object if valid
         self.args_parser.add_argument('startTime', type=_is_valid_datetime, required=True, nullable=False, help="Attribute is required. startTime must be of type datetime (ISO-format) and not null.")
         self.args_parser.add_argument('durationMinutes', type=int, required=True, nullable=False, help="Attribute is required. durationMinutes must be of type int, not null and > 0.")
-        self.args_parser.add_argument('invited', type=_is_list_with_valid_userIDs, required=False, nullable=False, help="Attribute is not required, but if provided invited list must be of type list and not null, but can be empty.")
+        self.args_parser.add_argument('invited', type=list, required=False, nullable=False, help="Attribute is not required, but if provided invited list must be of type list and not null, but can be empty.")
         # Since this is a creation of a pracice (POST to /practice), no users
         # can be either confirmed of declined yet. Thus these are considered
         # empty
@@ -41,6 +39,8 @@ class Practices(Resource):
         #self.args_parser.add_argument('declined', type=_is_list_with_valid_userIDs, required=False, nullable=False, help="Attribute is not required, but if provided declined list must be of type list and not null, but can be empty.")
 
         args = self.args_parser.parse_args(strict=True)
+        if not True:#_is_list_with_valid_userIDs(args['invited']):
+            abort(400, message="The parameter '{}' is of type string, and should be of type list. Input was: {}".format('invited', args['invited']))
 
         # Ekstra input validation: clubID must be valid id of existing club
         club = club_model.Club.query.get(args['club'])
@@ -109,13 +109,19 @@ class Practice(Resource):
         # The validator function will check for valid datatime and return a datetime object if valid
         self.args_parser.add_argument('starttime', type=_is_valid_datetime, required=False, nullable=False, help="Attribute is not required, but if provided startTime must be of type datetime (ISO-format) and not null.")
         self.args_parser.add_argument('durationMinutes', type=int, required=False, nullable=False, help="Attribute is not required, but if provided durationMinutes must be of type int, not null and > 0.")
-        self.args_parser.add_argument('invited', type=_is_list_with_valid_userIDs, required=False, nullable=False, help="Attribute is not required, but if provided invited list must be of type list and not null, but can be empty.")
-        self.args_parser.add_argument('confirmed', type=_is_list_with_valid_userIDs, required=False, nullable=False, help="Attribute is not required, but if provided confirmed list must be of type list and not null, but can be empty.")
-        self.args_parser.add_argument('declined', type=_is_list_with_valid_userIDs, required=False, nullable=False, help="Attribute is not required, but if provided declined list must be of type list and not null, but can be empty.")
+        self.args_parser.add_argument('invited', type=list, required=False, nullable=False, help="Attribute is not required, but if provided invited list must be of type list and not null, but can be empty.")
+        self.args_parser.add_argument('confirmed', type=list, required=False, nullable=False, help="Attribute is not required, but if provided confirmed list must be of type list and not null, but can be empty.")
+        self.args_parser.add_argument('declined', type=list, required=False, nullable=False, help="Attribute is not required, but if provided declined list must be of type list and not null, but can be empty.")
 
         # Validate args and get if valid. reqparser will throw nice HTTP 400's
         # at the caller if arguments are not validated.
         args = self.args_parser.parse_args(strict=True)
+        # if not _is_list_with_valid_userIDs(args['invited']):
+        #     abort(400, message="The parameter '{}' is of type string, and should be of type list. Input was: {}".format('invited', args['invited']))
+        # if not _is_list_with_valid_userIDs(args['confirmed']):
+        #     abort(400, message="The parameter '{}' is of type string, and should be of type list. Input was: {}".format('confirmed', args['confirmed']))
+        # if not _is_list_with_valid_userIDs(args['declined']):
+        #     abort(400, message="The parameter '{}' is of type string, and should be of type list. Input was: {}".format('declined', args['declined']))
 
         # Get practice object from DB
         practice = practice_model.Practice.query.get(practiceID)
