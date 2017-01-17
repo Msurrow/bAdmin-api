@@ -2,6 +2,7 @@ from flask import jsonify
 from flask_restful import Resource, abort, request
 import debug_code_generator
 import dateutil.parser
+import traceback
 # Imports for input validation (marsmallow)
 from validation_schemas import PracticeValidationSchema
 # Imports for serialization (flask-marshmallow)
@@ -10,7 +11,7 @@ import user_model
 import club_model
 import practice_model
 # Imports for DB connection
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from db_helper import db
 
 # Resource for handling non-practice-pecific actions on Practice resource
@@ -37,13 +38,21 @@ class Practices(Resource):
         # All request.json input parameters are validated by Marshmallow
         # schema.
         club = club_model.Club.query.get(request.json['club'])
-        practice = practice_model.Practice(request.json['name'], club, request.json['startTime'], request.json['durationMinutes'])
+        try:
+            st = dateutil.parser.parse(request.json['startTime'])
+            practice = practice_model.Practice(request.json['name'], club, st, request.json['durationMinutes'])
+        except ValueError as err:
+            debug_code = debug_code_generator.gen_debug_code()
+            print("ValueError happend in practice_model.py (catched in practice_resource.py). Debug code: {}. Stacktrace follows: ".format(debug_code))
+            print(traceback.format_exc())
+            print(err)
+            abort(500, message="Somehow the validations passed but the input still did not match the SQL schema. For security reasons no further details on the error will be provided other than a debug-code: {}. Please email the API developer with the debug-code and yell at him!".format(debug_code))
 
         # Fecth all invited users and add to practice
         if 'invited' in request.json:
             user_objects = []
             for userID in request.json['invited']:
-                u = user_model.User.get(userID)
+                u = user_model.User.query.get(userID)
                 if u is not None:
                     user_objects.append(u)
             practice.invited = user_objects
@@ -56,8 +65,9 @@ class Practices(Resource):
         except IntegrityError as err:
             debug_code = debug_code_generator.gen_debug_code()
             print("SQL IntegrityError happend in practice_resource.py. Debug code: {}. Stacktrace follows: ".format(debug_code))
+            print(traceback.format_exc())
             print(err)
-            abort(400, message="Somehow the validations passed but the input still did not match the SQL schema. For security reasons no further details on the error will be provided other than a debug-code: {}. Please email the API developer with the debug-code and yell at him!".format(debug_code))
+            abort(500, message="Somehow the validations passed but the input still did not match the SQL schema. For security reasons no further details on the error will be provided other than a debug-code: {}. Please email the API developer with the debug-code and yell at him!".format(debug_code))
 
         return jsonify(self.practice_schema.dump(practice).data)
 
@@ -139,9 +149,21 @@ class Practice(Resource):
             debug_code = debug_code_generator.gen_debug_code()
             print("SQL IntegrityError happend in practice_resource.py. Debug code: {}. Stacktrace follows: ".format(debug_code))
             print(err)
-            abort(400, message="Somehow the validations passed but the input still did not match the SQL schema. For security reasons no further details on the error will be provided other than a debug-code: {}. Please email the API developer with the debug-code and yell at him!".format(debug_code))
+            abort(500, message="Somehow the validations passed but the input still did not match the SQL schema. For security reasons no further details on the error will be provided other than a debug-code: {}. Please email the API developer with the debug-code and yell at him!".format(debug_code))
 
         return jsonify(self.practice_schema.dump(practice).data)
 
     def delete(self, practiceID):
-        abort(501)
+        # Get practice object from DB
+        practice = practice_model.Practice.query.get(practiceID)
+        if practice is None:
+            # Problem solved?
+            abort(404, message="Cannot delete practice. Practice with ID {} does not exist. .. problem solved?".format(practiceID))
+        try:
+            db.session.delete(practice)
+            db.session.commit()
+        except SQLAlchemyError as err:
+            debug_code = debug_code_generator.gen_debug_code()
+            print("SQL Error happend in practice_resource.py. Debug code: {}. Stacktrace follows: ".format(debug_code))
+            print(err)
+            abort(500, message="The database blew up. For security reasons no further details on the error will be provided other than a debug-code: {}. Please email the API developer with the debug-code and yell at him!".format(debug_code))

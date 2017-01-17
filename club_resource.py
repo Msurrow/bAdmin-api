@@ -1,6 +1,7 @@
 from flask import jsonify, request
 from flask_restful import Resource, abort
 import debug_code_generator
+import traceback
 # Imports for input validation (marsmallow)
 from validation_schemas import ClubValidationSchema
 # Imports for serialization (marshmallow)
@@ -9,6 +10,7 @@ import user_model
 import club_model
 # Imports for DB connection
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm import joinedload
 from db_helper import db
 
 # Resource for handling non-club-pecific actions on Club resource
@@ -39,8 +41,16 @@ class Clubs(Resource):
         # by default. Otherwise a club is created without any coaches or
         # membership requests. Club name input is validated by Marshmallow
         # schema.
-        club = club_model.Club(request.json['name'], [creatingUser])
-        club.members = [creatingUser]
+        try:
+            club = club_model.Club(request.json['name'], [creatingUser])
+            club.members = [creatingUser]
+        except ValueError as err:
+            debug_code = debug_code_generator.gen_debug_code()
+            print("ValueError happend in club_model.py (catched in club_resource.py). Debug code: {}. Stacktrace follows: ".format(debug_code))
+            print(traceback.format_exc())
+            print(err)
+            abort(500, message="Somehow the validations passed but the input still did not match the SQL schema. For security reasons no further details on the error will be provided other than a debug-code: {}. Please email the API developer with the debug-code and yell at him!".format(debug_code))
+
         try:
             db.session.add(club)
             db.session.commit()
@@ -48,7 +58,7 @@ class Clubs(Resource):
             debug_code = debug_code_generator.gen_debug_code()
             print("SQL IntegrityError happend in club_resource.py. Debug code: {}. Stacktrace follows: ".format(debug_code))
             print(err)
-            abort(400, message="Somehow the validations passed but the input still did not match the SQL schema. For security reasons no further details on the error will be provided other than a debug-code: {}. Please email the API developer with the debug-code and yell at him!".format(debug_code))
+            abort(500, message="Somehow the validations passed but the input still did not match the SQL schema. For security reasons no further details on the error will be provided other than a debug-code: {}. Please email the API developer with the debug-code and yell at him!".format(debug_code))
 
         return jsonify(club_model.dump(club).data)
 
@@ -129,7 +139,7 @@ class Club(Resource):
             debug_code = debug_code_generator.gen_debug_code()
             print("SQL IntegrityError happend in user_resource.py. Debug code: {}. Stacktrace follows: ".format(debug_code))
             print(err)
-            abort(400, message="Somehow the validations passed but the input still did not match the SQL schema. For security reasons no further details on the error will be provided other than a debug-code: {}. Please email the API developer with the debug-code and yell at him!".format(debug_code))
+            abort(500, message="Somehow the validations passed but the input still did not match the SQL schema. For security reasons no further details on the error will be provided other than a debug-code: {}. Please email the API developer with the debug-code and yell at him!".format(debug_code))
 
         return jsonify(self.club_schema.dump(club).data)
 

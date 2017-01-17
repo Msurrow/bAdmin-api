@@ -1,6 +1,7 @@
 from flask import jsonify
 from flask_restful import Resource, abort, request
 import debug_code_generator
+import traceback
 # Imports for input validation (marsmallow)
 from validation_schemas import UserValidationSchema
 # Imports for serialization (marshmallow)
@@ -34,7 +35,15 @@ class Users(Resource):
         if len(errors) > 0:
             abort(400, message="The reqeust input could bot be validated. There were the following validation errors: {}".format(errors))
 
-        user = user_model.User(request.json['name'], request.json['email'], request.json['phone'])
+        try:
+            user = user_model.User(request.json['name'], request.json['email'], request.json['phone'])
+        except ValueError as err:
+            debug_code = debug_code_generator.gen_debug_code()
+            print("ValueError happend in user_model.py (catched in user_resource.py). Debug code: {}. Stacktrace follows: ".format(debug_code))
+            print(traceback.format_exc())
+            print(err)
+            abort(500, message="Somehow the validations passed but the input still did not match the SQL schema. For security reasons no further details on the error will be provided other than a debug-code: {}. Please email the API developer with the debug-code and yell at him!".format(debug_code))
+
         try:
             db.session.add(user)
             db.session.commit()
@@ -42,7 +51,7 @@ class Users(Resource):
             debug_code = debug_code_generator.gen_debug_code()
             print("SQL IntegrityError happend in user_resource.py. Debug code: {}. Stacktrace follows: ".format(debug_code))
             print(err)
-            abort(400, message="Somehow the validations passed but the input still did not match the SQL schema. For security reasons no further details on the error will be provided other than a debug-code: {}. Please email the API developer with the debug-code and yell at him!".format(debug_code))
+            abort(500, message="Somehow the validations passed but the input still did not match the SQL schema. For security reasons no further details on the error will be provided other than a debug-code: {}. Please email the API developer with the debug-code and yell at him!".format(debug_code))
 
         return jsonify(self.user_schema.dump(user).data)
 
@@ -111,7 +120,7 @@ class User(Resource):
             debug_code = debug_code_generator.gen_debug_code()
             print("SQL IntegrityError happend in user_resource.py. Debug code: {}. Stacktrace follows: ".format(debug_code))
             print(err)
-            abort(400, message="Somehow the validations passed but the input still did not match the SQL schema. For security reasons no further details on the error will be provided other than a debug-code: {}. Please email the API developer with the debug-code and yell at him!".format(debug_code))
+            abort(500, message="Somehow the validations passed but the input still did not match the SQL schema. For security reasons no further details on the error will be provided other than a debug-code: {}. Please email the API developer with the debug-code and yell at him!".format(debug_code))
 
         return jsonify(self.user_schema.dump(user).data)
 

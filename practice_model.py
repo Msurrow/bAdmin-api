@@ -20,11 +20,11 @@ Practices datatype:
 class Practice(db.Model):
     id = db.Column(db.Integer, primary_key=True, unique=True, nullable=False)
     name = db.Column(db.String(500), unique=False, nullable=False)
-    
+
     club_id = db.Column(db.Integer, db.ForeignKey('club.id'))
-    club = db.relationship('Club', backref=db.backref('practices', lazy='dynamic'))
-    
-    startTime = db.Column(db.DateTime, unique=False, nullable=False)
+    club = db.relationship('Club', backref=db.backref('practices'))
+
+    startTime = db.Column(db.DateTime(timezone=True), unique=False, nullable=False)
     durationMinutes = db.Column(db.Integer, unique=False, nullable=False)
     invited = db.relationship('User', secondary=user_invited_practice, backref=db.backref('invitedPractices', lazy='dynamic'))
     confirmed = db.relationship('User', secondary=user_confirmed_practice, backref=db.backref('confirmedPractices', lazy='dynamic'))
