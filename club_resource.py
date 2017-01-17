@@ -60,7 +60,7 @@ class Clubs(Resource):
             print(err)
             abort(500, message="Somehow the validations passed but the input still did not match the SQL schema. For security reasons no further details on the error will be provided other than a debug-code: {}. Please email the API developer with the debug-code and yell at him!".format(debug_code))
 
-        return jsonify(club_model.dump(club).data)
+        return jsonify(self.club_schema.dump(club).data)
 
 # Resource for handling club-pecific actions on Club resource
 class Club(Resource):

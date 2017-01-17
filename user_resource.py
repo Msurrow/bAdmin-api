@@ -74,7 +74,7 @@ class User(Resource):
         # Input validation using Marshmallow. No parameter is actually required
         # in the PUT (update) request, since we do partical/relative update.
         # userID type is enforced by Flask-RESTful
-        _, errors = self.practice_validation_schema.load(request.json, partial=('name','email','phone','clubs','practices',))
+        _, errors = self.user_validation_schema.load(request.json, partial=('name','email','phone','clubs','practices',))
         if len(errors) > 0:
             abort(400, message="The reqeust input could bot be validated. There were the following validation errors: {}".format(errors))
 
