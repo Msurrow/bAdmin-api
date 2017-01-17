@@ -1,6 +1,8 @@
 from flask import jsonify
-from flask_restful import Resource, reqparse, abort
+from flask_restful import Resource, abort, request
 import debug_code_generator
+# Imports for input validation (marsmallow)
+from validation_schemas import UserValidationSchema
 # Imports for serialization (marshmallow)
 from serialization_schemas import UserSchema
 import user_model
@@ -19,6 +21,7 @@ class Users(Resource):
     def __init__(self):
         self.user_schema = UserSchema()
         self.users_schema = UserSchema(many=True)
+        self.user_validation_schema = UserValidationSchema()
 
     def get(self):
         # Get on user resource lists all users
@@ -26,25 +29,12 @@ class Users(Resource):
         return jsonify(self.users_schema.dump(users).data)
 
     def post(self):
-        # No ID required when creating user. Backedn will create ID.
-        self.args_parser = reqparse.RequestParser(bundle_errors=True)
-        self.args_parser.add_argument('name', type=str, location='json', required=True, nullable=False, help="Attribute is required. Username must be of type string and not null, and cannot be empty.")
-        self.args_parser.add_argument('email', type=str, location='json', required=True, nullable=False, help="Attribute is required. User email must be of type string and not null, and must be a valid email address.")
-        self.args_parser.add_argument('phone', type=int, location='json', required=False, nullable=False, help="Attribute is not required, but if provided user phone must be of type int and not null, and must be a valid DK phonenumber.")
-        self.args_parser.add_argument('clubs', type=_is_list_with_valid_clubs, location='json', required=False, nullable=False, help="Attribute is not required, but if provided user clubs list must be of type list, not null and all IDs must be IDs of existing clubs, but can be empty.")
-        self.args_parser.add_argument('practices', type=_is_list_with_valid_practices, location='json', required=False, nullable=False, help="Attribute is not required, but if provided user practices' list must be of type list and not null, but can be empty.")
+        # Input validation using Marshmallow.
+        _, errors = self.user_validation_schema.load(request.json)
+        if len(errors) > 0:
+            abort(400, message="The reqeust input could bot be validated. There were the following validation errors: {}".format(errors))
 
-        args = self.args_parser.parse_args(strict=True)
-
-        # Ekstra input validation: Name attribute cannot be empty.
-        if args['name'] is not None:
-            if len(args['name']) <= 0:
-                abort(400, message="User name cannot be an empty string.")
-
-        # TODO: Validate user email is actually a valid email address
-        # TODO: Validate user phone is actually a valid DK phone
-
-        user = user_model.User(args['name'], args['email'], args['phone'])
+        user = user_model.User(request.json['name'], request.json['email'], request.json['phone'])
         try:
             db.session.add(user)
             db.session.commit()
@@ -62,6 +52,7 @@ class User(Resource):
     def __init__(self):
         self.user_schema = UserSchema()
         self.users_schema = UserSchema(many=True)
+        self.user_validation_schema = UserValidationSchema()
 
     def get(self, userID):
         # userID type (must be int) is enforced by Flask-RESTful
@@ -71,19 +62,12 @@ class User(Resource):
         return jsonify(self.user_schema.dump(user).data)
 
     def put(self, userID):
-        # Set JSON args requirements in reqparser for this method.
-        # UserID is part of URL not args. Dont validate with args_parser.
+        # Input validation using Marshmallow. No parameter is actually required
+        # in the PUT (update) request, since we do partical/relative update.
         # userID type is enforced by Flask-RESTful
-        self.args_parser = reqparse.RequestParser(bundle_errors=True)
-        self.args_parser.add_argument('name', type=str, required=False, nullable=False, help="Attribute is not required, but if provided username must be of type string and not null, and cannot be empty.")
-        self.args_parser.add_argument('email', type=str, required=False, nullable=False, help="Attribute is not required, but if provided user email must be of type string and not null, and must be a valid email address.")
-        self.args_parser.add_argument('phone', type=int, required=False, nullable=False, help="Attribute is not required, but if provided user phone must be of type int and not null, and must be a valid DK phonenumber.")
-        self.args_parser.add_argument('clubs', type=_is_list_with_valid_clubs, location='json', required=False, nullable=False, help="Attribute is not required, but if provided user clubs list must be of type list, not null and all IDs must be IDs of existing clubs, but can be empty.")
-        self.args_parser.add_argument('practices', type=_is_list_with_valid_practices, required=False, nullable=False, help="Attribute is not required, but if provided user practices' list must be of type list and not null, but can be empty.")
-
-        # Validate args and get if valid. reqparser will throw nice HTTP 400's
-        # at the caller if arguments are not validated.
-        args = self.args_parser.parse_args(strict=True)
+        _, errors = self.practice_validation_schema.load(request.json, partial=('name','email','phone','clubs','practices',))
+        if len(errors) > 0:
+            abort(400, message="The reqeust input could bot be validated. There were the following validation errors: {}".format(errors))
 
         # Get user object from DB
         user = user_model.User.query.get(userID)
@@ -92,47 +76,33 @@ class User(Resource):
 
         # Do relative update: if the attribute is part of the arguments
         # then update it, otherwise leave as is.
+        # All input params are validated in Marshmallow schema.
 
-        # Update name attribute if in args.
-        # Ekstra input validation: Name attribute cannot be empty.
-        if args['name'] is not None:
-            if len(args['name']) > 0:
-                user.name = args['name']
-            else:
-                abort(400, message="User name cannot be an empty string.")
+        if 'name' in request.json:
+            user.name = request.json['name']
 
-        # Update email attribute if in args
-        # TODO: Validate sematically correct email
-        if args['email'] is not None:
-            user.email = args['email']
+        if 'email' in request.json:
+            user.email = request.json['email']
 
-        # Update phone attribute if in args
-        # TODO: Validate sematically correct DK phone
-        if args['phone'] is not None:
-            user.phone = args['phone']
+        if 'phone' in request.json:
+            user.phone = request.json['phone']
 
-        # Update user clubs list
-        if args['clubs'] is not None:
+        # Fecth all users' clubs and add to user
+        if 'clubs' in request.json:
             club_objects = []
-            for clubID in args['clubs']:
+            for clubID in request.json['clubs']:
                 c = club_model.Club.query.get(clubID)
                 if c is not None:
                     club_objects.append(c)
-                # No 'else'-clause since Flask-restful input validation already
-                # checked that all clubIDs in input is actually IDs of existing
-                # clubs.
             user.clubs = club_objects
 
-        # Update user practices' list
-        if args['practices'] is not None:
+        # Fecth all users' practices and add to user
+        if 'practices' in request.json:
             practice_objects = []
-            for practiceID in args['practice']:
+            for practiceID in request.json['practice']:
                 c = practice_model.Practice.query.get(practiceID)
                 if c is not None:
                     practice_objects.append(c)
-                # No 'else'-clause since Flask-restful input validation already
-                # checked that all practiceIDs in input is actually IDs of
-                # existing clubs.
             user.clubs = practice_objects
 
         try:
@@ -145,42 +115,5 @@ class User(Resource):
 
         return jsonify(self.user_schema.dump(user).data)
 
-"""
-CUSTOM VALIDATORS FOR REQPARSE / VALIDATING INPUT
-"""
-def _is_list_with_valid_clubs(listClubIDs, name):
-    lst = listClubIDs
-    try:
-        lst = list(listClubIDs)
-        if isinstance(lst, str):
-            raise ValueError("The parameter '{}' is of type string, and should be of type list. Input was: {}".format(name, lst))
-
-        for clubID in lst:
-            c = club_model.Club.query.get(clubID)
-            if c is None:
-                raise ValueError("The parameter '{}' contains IDs that are not valid clubIDs. Input was: {}".format(name, lst))
-
-    except:
-        raise ValueError("The parameter '{}' is not of type list. Input was: {}".format(name, listClubIDs))
-
-    return lst
-
-def _is_list_with_valid_practices(listPracticeIDs, name):
-    lst = listPracticeIDs
-    try:
-        lst = list(listPracticeIDs)
-        if isinstance(listPracticeIDs, str):
-            # Due to 'help' text in for the argument, the error text
-            # doesn't get logged, so we print it
-            print("The parameter '{}' is of type string, and should be of type list. Input was: {}".format(name, listPracticeIDs))
-            raise ValueError()
-
-        for practiceID in lst:
-            p = practice_model.Club.query.get(practiceID)
-            if p is None:
-                raise ValueError("The parameter '{}' contains IDs that are not valid practiceIDs. Input was: {}".format(name, lst))
-
-    except:
-        raise ValueError("The parameter '{}' is not of type list. Input was: {}".format(name, listPracticeIDs))
-
-    return lst
+    def delete(self, practiceID):
+        abort(501)

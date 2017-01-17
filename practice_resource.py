@@ -28,7 +28,7 @@ class Practices(Resource):
 
     def post(self):
         # Input validation using Marshmallow.
-        _, errors = self.club_validation_schema.load(request.json)
+        _, errors = self.practice_validation_schema.load(request.json)
         if len(errors) > 0:
             abort(400, message="The reqeust input could bot be validated. There were the following validation errors: {}".format(errors))
 
@@ -79,7 +79,8 @@ class Practice(Resource):
     def put(self, practiceID):
         # Input validation using Marshmallow. No parameter is actually required
         # in the PUT (update) request, since we do partical/relative update.
-        _, errors = self.club_validation_schema.load(request.json, partial=('club', 'name', 'startTime', 'durationMinutes', 'invited', 'confiremd', 'declined',))
+        # practiceID type is enforced by Flask-RESTful
+        _, errors = self.practice_validation_schema.load(request.json, partial=('club', 'name', 'startTime', 'durationMinutes', 'invited', 'confiremd', 'declined',))
         if len(errors) > 0:
             abort(400, message="The reqeust input could bot be validated. There were the following validation errors: {}".format(errors))
 

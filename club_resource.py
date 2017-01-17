@@ -68,8 +68,8 @@ class Club(Resource):
         return jsonify(self.club_schema.dump(club).data)
 
     def put(self, clubID):
-        # Input validation using Marshmallow.
-        # ClubID is part of URL not args. Dont validate here.
+        # Input validation using Marshmallow. No parameter is actually required
+        # in the PUT (update) request, since we do partical/relative update.
         # clubID type is enforced by Flask-RESTful
         _, errors = self.club_validation_schema.load(request.json, partial=('name',))
         if len(errors) > 0:
@@ -87,48 +87,40 @@ class Club(Resource):
         if 'name' in request.json:
             club.name = request.json['name']
 
+        # Fecth all admins and add to club
         if 'admins' in request.json:
             user_objects = []
             for userID in request.json['admins']:
                 u = user_model.User.query.get(userID)
                 if u is not None:
                     user_objects.append(u)
-                # No 'else'-clause since Flask-restful input validation already
-                # checked that all userIDs in input is actually IDs of existing
-                # users.
             club.admins = user_objects
 
+        # Fecth all coaches and add to club
         if 'coaches' in request.json:
             user_objects = []
             for userID in request.json['coaches']:
                 u = user_model.User.query.get(userID)
                 if u is not None:
                     user_objects.append(u)
-                # No 'else'-clause since Flask-restful input validation already
-                # checked that all userIDs in input is actually IDs of existing
-                # users.
             club.coaches = user_objects
 
+        # Fecth all membersipRequest users and add to club
         if 'membershipRequests' in request.json:
             user_objects = []
             for userID in request.json['membershipRequests']:
                 u = user_model.User.query.get(userID)
                 if u is not None:
                     user_objects.append(u)
-                # No 'else'-clause since Flask-restful input validation already
-                # checked that all userIDs in input is actually IDs of existing
-                # users.
             club.membershipRequests = user_objects
 
+        # Fecth all members and add to club
         if 'members' in request.json:
             user_objects = []
             for userID in request.json['members']:
                 u = user_model.User.query.get(userID)
                 if u is not None:
                     user_objects.append(u)
-                # No 'else'-clause since Flask-restful input validation already
-                # checked that all userIDs in input is actually IDs of existing
-                # users.
             club.members = user_objects
 
         try:
@@ -140,3 +132,6 @@ class Club(Resource):
             abort(400, message="Somehow the validations passed but the input still did not match the SQL schema. For security reasons no further details on the error will be provided other than a debug-code: {}. Please email the API developer with the debug-code and yell at him!".format(debug_code))
 
         return jsonify(self.club_schema.dump(club).data)
+
+    def delete(self, practiceID):
+        abort(501)
