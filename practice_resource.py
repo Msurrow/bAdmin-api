@@ -24,8 +24,8 @@ class Practices(Resource):
 
     def get(self):
         # Get on practice resource lists all practices
-        practices = club_model.Practice.query.filter(1==1).all()
-        return jsonify(self.practice_schema.dump(practices).data)
+        practices = practice_model.Practice.query.filter(1==1).all()
+        return jsonify(self.practices_schema.dump(practices).data)
 
     def post(self):
         # Input validation using Marshmallow.
@@ -120,7 +120,7 @@ class Practice(Resource):
         if 'invited' in request.json:
             user_objects = []
             for userID in request.json['invited']:
-                u = user_model.User.get(userID)
+                u = user_model.User.query.get(userID)
                 if u is not None:
                     user_objects.append(u)
             practice.invited = user_objects
@@ -129,16 +129,16 @@ class Practice(Resource):
         if 'confirmed' in request.json:
             user_objects = []
             for userID in request.json['confirmed']:
-                u = user_model.User.get(userID)
+                u = user_model.User.query.get(userID)
                 if u is not None:
                     user_objects.append(u)
             practice.confirmed = user_objects
 
         # Fecth all declined users and add to practice
-        if request.json['declined'] in request.json:
+        if 'declined' in request.json:
             user_objects = []
             for userID in request.json['declined']:
-                u = user_model.User.get(userID)
+                u = user_model.User.query.get(userID)
                 if u is not None:
                     user_objects.append(u)
             practice.declined = user_objects
