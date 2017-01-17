@@ -1,6 +1,7 @@
 from flask import jsonify, request
 from flask_restful import Resource, abort
 import debug_code_generator
+# Imports for input validation (marsmallow)
 from validation_schemas import ClubValidationSchema
 # Imports for serialization (marshmallow)
 from serialization_schemas import ClubSchema
@@ -81,9 +82,8 @@ class Club(Resource):
 
         # Do relative update: if the attribute is part of the arguments
         # then update it, otherwise leave as is.
+        # All input params are validated in Marshmallow schema.
 
-        # Marshmallow schema validation checks for name is
-        # a non-empty String
         if 'name' in request.json:
             club.name = request.json['name']
 
