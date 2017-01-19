@@ -11,7 +11,6 @@ import user_model
 import club_model
 # Imports for DB connection
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy.orm import joinedload
 from db_helper import db
 
 # Resource for handling non-club-pecific actions on Club resource
@@ -26,6 +25,8 @@ class Clubs(Resource):
     def get(self):
         # Get on club resource lists all clubs
         clubs = club_model.Club.query.filter(1==1).all()
+        self.logger.info("Logging an info message")
+        self.logger.error("ERROR ARGH PANIC")
         return jsonify(self.clubs_schema.dump(clubs).data)
 
     def post(self):
