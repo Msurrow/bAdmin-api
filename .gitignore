@@ -1,4 +1,4 @@
-VIRTUAL/
+venv-api/
 __pycache__/
 run.sh
 test.db
