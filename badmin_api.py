@@ -3,6 +3,7 @@ import os
 from flask import Flask, jsonify
 from flask_restful import Api
 from flask_cors import CORS
+import logging, logging.config, yaml
 # Import API resources
 from user_resource import Users, User
 from club_resource import Clubs, Club
@@ -35,10 +36,15 @@ app.app_context().push()
 # Marshmallow must be initialized after sqlalchemy
 ma.init_app(app)
 
+if not app.debug:
+    # In production mode, log to both stdout and logfile
+    logging.config.dictConfig(yaml.load(open('logging.conf')))
+
 # API Routes that Flask-Restful API doesn't handle
 @app.route("/")
 def index():
     return jsonify({"TODO":"Please write documentation"})
 
 if __name__ == "__main__":
+    # When run with gunicorn this isn't called, and gunicorn will run as debug=false
     app.run(debug=True, host="0.0.0.0",port=int(sys.argv[1]))

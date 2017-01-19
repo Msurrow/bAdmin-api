@@ -3,6 +3,7 @@ from flask_restful import Resource, abort, request
 import debug_code_generator
 import dateutil.parser
 import traceback
+import logging
 # Imports for input validation (marsmallow)
 from validation_schemas import PracticeValidationSchema
 # Imports for serialization (flask-marshmallow)
@@ -21,6 +22,7 @@ class Practices(Resource):
         self.practice_schema = PracticeSchema()
         self.practices_schema = PracticeSchema(many=True)
         self.practice_validation_schema = PracticeValidationSchema()
+        self.logger = logging.getLogger('root')
 
     def get(self):
         # Get on practice resource lists all practices
@@ -43,9 +45,9 @@ class Practices(Resource):
             practice = practice_model.Practice(request.json['name'], club, st, request.json['durationMinutes'])
         except ValueError as err:
             debug_code = debug_code_generator.gen_debug_code()
-            print("ValueError happend in practice_model.py (catched in practice_resource.py). Debug code: {}. Stacktrace follows: ".format(debug_code))
-            print(traceback.format_exc())
-            print(err)
+            self.logging.error("ValueError happend in practice_model.py (catched in practice_resource.py). Debug code: {}. Stacktrace follows: ".format(debug_code))
+            self.logging.error(traceback.format_exc())
+            self.logging.error(err)
             abort(500, message="Somehow the validations passed but the input still did not match the SQL schema. For security reasons no further details on the error will be provided other than a debug-code: {}. Please email the API developer with the debug-code and yell at him!".format(debug_code))
 
         # Fecth all invited users and add to practice
@@ -64,9 +66,9 @@ class Practices(Resource):
             db.session.commit()
         except IntegrityError as err:
             debug_code = debug_code_generator.gen_debug_code()
-            print("SQL IntegrityError happend in practice_resource.py. Debug code: {}. Stacktrace follows: ".format(debug_code))
-            print(traceback.format_exc())
-            print(err)
+            self.logging.error("SQL IntegrityError happend in practice_resource.py. Debug code: {}. Stacktrace follows: ".format(debug_code))
+            self.logging.error(traceback.format_exc())
+            self.logging.error(err)
             abort(500, message="Somehow the validations passed but the input still did not match the SQL schema. For security reasons no further details on the error will be provided other than a debug-code: {}. Please email the API developer with the debug-code and yell at him!".format(debug_code))
 
         return jsonify(self.practice_schema.dump(practice).data)
@@ -78,6 +80,7 @@ class Practice(Resource):
         self.practice_schema = PracticeSchema()
         self.practices_schema = PracticeSchema(many=True)
         self.practice_validation_schema = PracticeValidationSchema()
+        self.logger = logging.getLogger('root')
 
     def get(self, practiceID):
         # practiceID type (must be int) is enforced by Flask-RESTful
@@ -147,8 +150,8 @@ class Practice(Resource):
             db.session.commit()
         except IntegrityError as err:
             debug_code = debug_code_generator.gen_debug_code()
-            print("SQL IntegrityError happend in practice_resource.py. Debug code: {}. Stacktrace follows: ".format(debug_code))
-            print(err)
+            self.logging.error("SQL IntegrityError happend in practice_resource.py. Debug code: {}. Stacktrace follows: ".format(debug_code))
+            self.logging.error(err)
             abort(500, message="Somehow the validations passed but the input still did not match the SQL schema. For security reasons no further details on the error will be provided other than a debug-code: {}. Please email the API developer with the debug-code and yell at him!".format(debug_code))
 
         return jsonify(self.practice_schema.dump(practice).data)
@@ -164,6 +167,6 @@ class Practice(Resource):
             db.session.commit()
         except SQLAlchemyError as err:
             debug_code = debug_code_generator.gen_debug_code()
-            print("SQL Error happend in practice_resource.py. Debug code: {}. Stacktrace follows: ".format(debug_code))
-            print(err)
+            self.logging.error("SQL Error happend in practice_resource.py. Debug code: {}. Stacktrace follows: ".format(debug_code))
+            self.logging.error(err)
             abort(500, message="The database blew up. For security reasons no further details on the error will be provided other than a debug-code: {}. Please email the API developer with the debug-code and yell at him!".format(debug_code))

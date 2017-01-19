@@ -2,6 +2,7 @@ from flask import jsonify, request
 from flask_restful import Resource, abort
 import debug_code_generator
 import traceback
+import logging
 # Imports for input validation (marsmallow)
 from validation_schemas import ClubValidationSchema
 # Imports for serialization (marshmallow)
@@ -20,6 +21,7 @@ class Clubs(Resource):
         self.club_schema = ClubSchema()
         self.clubs_schema = ClubSchema(many=True)
         self.club_validation_schema = ClubValidationSchema()
+        self.logger = logging.getLogger('root')
 
     def get(self):
         # Get on club resource lists all clubs
@@ -46,9 +48,9 @@ class Clubs(Resource):
             club.members = [creatingUser]
         except ValueError as err:
             debug_code = debug_code_generator.gen_debug_code()
-            print("ValueError happend in club_model.py (catched in club_resource.py). Debug code: {}. Stacktrace follows: ".format(debug_code))
-            print(traceback.format_exc())
-            print(err)
+            self.logger.error("ValueError happend in club_model.py (catched in club_resource.py). Debug code: {}. Stacktrace follows: ".format(debug_code))
+            self.logger.error(traceback.format_exc())
+            self.logger.error(err)
             abort(500, message="Somehow the validations passed but the input still did not match the SQL schema. For security reasons no further details on the error will be provided other than a debug-code: {}. Please email the API developer with the debug-code and yell at him!".format(debug_code))
 
         try:
@@ -56,8 +58,8 @@ class Clubs(Resource):
             db.session.commit()
         except IntegrityError as err:
             debug_code = debug_code_generator.gen_debug_code()
-            print("SQL IntegrityError happend in club_resource.py. Debug code: {}. Stacktrace follows: ".format(debug_code))
-            print(err)
+            self.logger.error("SQL IntegrityError happend in club_resource.py. Debug code: {}. Stacktrace follows: ".format(debug_code))
+            self.logger.error(err)
             abort(500, message="Somehow the validations passed but the input still did not match the SQL schema. For security reasons no further details on the error will be provided other than a debug-code: {}. Please email the API developer with the debug-code and yell at him!".format(debug_code))
 
         return jsonify(self.club_schema.dump(club).data)
@@ -69,6 +71,7 @@ class Club(Resource):
         self.club_schema = ClubSchema()
         self.clubs_schema = ClubSchema(many=True)
         self.club_validation_schema = ClubValidationSchema()
+        self.logger = logging.getLogger('root')
 
     def get(self, clubID):
         # clubID type (must be int) is enforced by Flask-RESTful
@@ -137,8 +140,8 @@ class Club(Resource):
             db.session.commit()
         except IntegrityError as err:
             debug_code = debug_code_generator.gen_debug_code()
-            print("SQL IntegrityError happend in user_resource.py. Debug code: {}. Stacktrace follows: ".format(debug_code))
-            print(err)
+            self.logger.error("SQL IntegrityError happend in user_resource.py. Debug code: {}. Stacktrace follows: ".format(debug_code))
+            self.logger.error(err)
             abort(500, message="Somehow the validations passed but the input still did not match the SQL schema. For security reasons no further details on the error will be provided other than a debug-code: {}. Please email the API developer with the debug-code and yell at him!".format(debug_code))
 
         return jsonify(self.club_schema.dump(club).data)
