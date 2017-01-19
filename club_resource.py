@@ -25,8 +25,6 @@ class Clubs(Resource):
     def get(self):
         # Get on club resource lists all clubs
         clubs = club_model.Club.query.filter(1==1).all()
-        self.logger.info("Logging an info message")
-        self.logger.error("ERROR ARGH PANIC")
         return jsonify(self.clubs_schema.dump(clubs).data)
 
     def post(self):

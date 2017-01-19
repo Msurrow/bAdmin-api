@@ -29,7 +29,6 @@ class Users(Resource):
     def get(self):
         # Get on user resource lists all users
         users = user_model.User.query.filter(1 == 1).all()
-        raise ValueError("Test exceptions. Go BOOM!")
         return jsonify(self.users_schema.dump(users).data)
 
     def post(self):
