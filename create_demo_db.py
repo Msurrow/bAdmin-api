@@ -30,15 +30,15 @@ with app.app_context():
     db_helper.db.session.add(test_club_2)
     db_helper.db.session.commit()
 
-    test_practice_1 = practice_model.Practice('A-træning', test_club_1, dateutil.parser.parse('2017-01-01T12:00:00'), 120)
+    test_practice_1 = practice_model.Practice('A-træning', test_club_1, dateutil.parser.parse('2017-01-01T12:00:00+01:00'), 120)
     test_practice_1.invited.append(test_user_1)
     test_practice_1.confirmed.append(test_user_2)
 
-    test_practice_2 = practice_model.Practice('A-træning', test_club_1, dateutil.parser.parse('2017-01-03T12:00:00'), 120)
+    test_practice_2 = practice_model.Practice('A-træning', test_club_1, dateutil.parser.parse('2017-01-03T12:00:00+01:00'), 120)
     test_practice_2.invited.append(test_user_2)
     test_practice_2.declined.append(test_user_1)
 
-    test_practice_3 = practice_model.Practice('A-træning', test_club_1, dateutil.parser.parse('2017-01-05T12:00:00'), 120)
+    test_practice_3 = practice_model.Practice('A-træning', test_club_1, dateutil.parser.parse('2017-01-05T12:00:00+01:00'), 120)
     test_practice_3.invited.append(test_user_1)
     test_practice_3.invited.append(test_user_2)
 
