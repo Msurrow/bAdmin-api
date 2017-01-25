@@ -35,7 +35,7 @@ class Practices(Resource):
             return jsonify(self.practice_schema.dump(practice).data)
         else:
             # Get on practice resource lists all practices
-            practices = practice_model.Practice.query.filter(1==1).all()
+            practices = practice_model.Practice.query.filter(1==1).order_by(practice_model.Practice.startTime.asc()).all()
             return jsonify(self.practices_schema.dump(practices).data)
 
     def post(self):
