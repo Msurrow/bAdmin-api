@@ -3,17 +3,21 @@ from flask_restful import Resource, abort
 import debug_code_generator
 import traceback
 import logging
+import datetime
 # Imports for input validation (marsmallow)
 from validation_schemas import ClubValidationSchema
 # Imports for serialization (marshmallow)
-from serialization_schemas import ClubSchema
+from serialization_schemas import ClubSchema, PracticeSchema
 import user_model
 import club_model
+import practice_model
 # Imports for DB connection
 from sqlalchemy.exc import IntegrityError
 from db_helper import db
 
-# Resource for handling non-club-pecific actions on Club resource
+"""
+Resource for handling non-club-pecific actions on Club resource
+"""
 class Clubs(Resource):
 
     def __init__(self):
@@ -22,10 +26,17 @@ class Clubs(Resource):
         self.club_validation_schema = ClubValidationSchema()
         self.logger = logging.getLogger('root')
 
-    def get(self):
-        # Get on club resource lists all clubs
-        clubs = club_model.Club.query.filter(1==1).all()
-        return jsonify(self.clubs_schema.dump(clubs).data)
+    def get(self, clubID=None):
+        if clubID:
+            # clubID type (must be int) is enforced by Flask-RESTful
+            club = club_model.Club.query.get(clubID)
+            if club is None:
+                abort(404, message="Club with ID {} does not exist.".format(clubID))
+            return jsonify(self.club_schema.dump(club).data)
+        else:
+            # Get on club resource lists all clubs
+            clubs = club_model.Club.query.filter(1==1).all()
+            return jsonify(self.clubs_schema.dump(clubs).data)
 
     def post(self):
         # Input validation using Marshmallow.
@@ -61,22 +72,6 @@ class Clubs(Resource):
             self.logger.error(err)
             abort(500, message="Somehow the validations passed but the input still did not match the SQL schema. For security reasons no further details on the error will be provided other than a debug-code: {}. Please email the API developer with the debug-code and yell at him!".format(debug_code))
 
-        return jsonify(self.club_schema.dump(club).data)
-
-# Resource for handling club-pecific actions on Club resource
-class Club(Resource):
-
-    def __init__(self):
-        self.club_schema = ClubSchema()
-        self.clubs_schema = ClubSchema(many=True)
-        self.club_validation_schema = ClubValidationSchema()
-        self.logger = logging.getLogger('root')
-
-    def get(self, clubID):
-        # clubID type (must be int) is enforced by Flask-RESTful
-        club = club_model.Club.query.get(clubID)
-        if club is None:
-            abort(404, message="Club with ID {} does not exist.".format(clubID))
         return jsonify(self.club_schema.dump(club).data)
 
     def put(self, clubID):
@@ -147,3 +142,27 @@ class Club(Resource):
 
     def delete(self, practiceID):
         abort(501)
+
+"""
+Resource for handling club-pecific temporally related requests on Club resource
+"""
+class ClubPractices(Resource):
+
+    def __init__(self):
+        self.practice_schema = PracticeSchema()
+        self.practices_schema = PracticeSchema(many=True)
+        self.logger = logging.getLogger('root')
+
+    def get(self, clubID, weekNumber=None):
+        if weekNumber:
+            now = datetime.datetime.now()
+            weekStart = datetime.datetime.strptime(str(now.year)+'-'+str(weekNumber)+'-1', "%G-%V-%u")
+            weekEnd = datetime.datetime.strptime(str(now.year)+'-'+str(weekNumber)+'-7', "%G-%V-%u")
+            practices = practice_model.Practice.query.filter(
+                                practice_model.Practice.startTime >= weekStart,
+                                practice_model.Practice.startTime <= weekEnd).all()
+            return jsonify(self.practices_schema.dump(practices).data)
+        else:
+            # TODO: Do the same as above with weeknember, but wrap in for loop 
+            # for and do for all weeks in year. return [week1:[prac1, prac2, ..], week2:[prac1, prac2, ..]]
+            abort(501, message="Not implemented yet. GET /club/<id>/practicesbyweek/<weeknumber> with a specific week instead.")

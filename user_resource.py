@@ -15,9 +15,8 @@ from sqlalchemy.exc import IntegrityError
 from db_helper import db
 
 """
-Resources
+Resource for handling non-user-pecific actions on User resource
 """
-# Resource for handling non-user-pecific actions on User resource
 class Users(Resource):
 
     def __init__(self):
@@ -26,10 +25,17 @@ class Users(Resource):
         self.user_validation_schema = UserValidationSchema()
         self.logger = logging.getLogger('root')
 
-    def get(self):
-        # Get on user resource lists all users
-        users = user_model.User.query.filter(1 == 1).all()
-        return jsonify(self.users_schema.dump(users).data)
+    def get(self, userID=None):
+        if userID:
+            # userID type (must be int) is enforced by Flask-RESTful
+            user = user_model.User.query.get(userID)
+            if user is None:
+                abort(404, message="User with ID {} does not exist.".format(userID))
+            return jsonify(self.user_schema.dump(user).data)
+        else:
+            # Get on user resource without ID lists all users
+            users = user_model.User.query.filter(1 == 1).all()
+            return jsonify(self.users_schema.dump(users).data)
 
     def post(self):
         # Input validation using Marshmallow.
@@ -55,22 +61,6 @@ class Users(Resource):
             self.logger.error(err)
             abort(500, message="Somehow the validations passed but the input still did not match the SQL schema. For security reasons no further details on the error will be provided other than a debug-code: {}. Please email the API developer with the debug-code and yell at him!".format(debug_code))
 
-        return jsonify(self.user_schema.dump(user).data)
-
-# Resource for handling user-pecific actions on User resource
-class User(Resource):
-
-    def __init__(self):
-        self.user_schema = UserSchema()
-        self.users_schema = UserSchema(many=True)
-        self.user_validation_schema = UserValidationSchema()
-        self.logger = logging.getLogger('root')
-
-    def get(self, userID):
-        # userID type (must be int) is enforced by Flask-RESTful
-        user = user_model.User.query.get(userID)
-        if user is None:
-            abort(404, message="User with ID {} does not exist.".format(userID))
         return jsonify(self.user_schema.dump(user).data)
 
     def put(self, userID):

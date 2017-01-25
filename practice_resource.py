@@ -15,7 +15,9 @@ import practice_model
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from db_helper import db
 
-# Resource for handling non-practice-pecific actions on Practice resource
+"""
+Resource for handling non-practice-pecific actions on Practice resource
+"""
 class Practices(Resource):
 
     def __init__(self):
@@ -24,10 +26,17 @@ class Practices(Resource):
         self.practice_validation_schema = PracticeValidationSchema()
         self.logger = logging.getLogger('root')
 
-    def get(self):
-        # Get on practice resource lists all practices
-        practices = practice_model.Practice.query.filter(1==1).all()
-        return jsonify(self.practices_schema.dump(practices).data)
+    def get(self, practiceID=None):
+        if practiceID:
+            # practiceID type (must be int) is enforced by Flask-RESTful
+            practice = practice_model.Practice.query.get(practiceID)
+            if practice is None:
+                abort(404, message="Practice with ID {} does not exist.".format(practiceID))
+            return jsonify(self.practice_schema.dump(practice).data)
+        else:
+            # Get on practice resource lists all practices
+            practices = practice_model.Practice.query.filter(1==1).all()
+            return jsonify(self.practices_schema.dump(practices).data)
 
     def post(self):
         # Input validation using Marshmallow.
@@ -71,22 +80,6 @@ class Practices(Resource):
             self.logging.error(err)
             abort(500, message="Somehow the validations passed but the input still did not match the SQL schema. For security reasons no further details on the error will be provided other than a debug-code: {}. Please email the API developer with the debug-code and yell at him!".format(debug_code))
 
-        return jsonify(self.practice_schema.dump(practice).data)
-
-# Resource for handling practice-pecific actions on Practice resource
-class Practice(Resource):
-
-    def __init__(self):
-        self.practice_schema = PracticeSchema()
-        self.practices_schema = PracticeSchema(many=True)
-        self.practice_validation_schema = PracticeValidationSchema()
-        self.logger = logging.getLogger('root')
-
-    def get(self, practiceID):
-        # practiceID type (must be int) is enforced by Flask-RESTful
-        practice = practice_model.Practice.query.get(practiceID)
-        if practice is None:
-            abort(404, message="Practice with ID {} does not exist.".format(practiceID))
         return jsonify(self.practice_schema.dump(practice).data)
 
     def put(self, practiceID):
