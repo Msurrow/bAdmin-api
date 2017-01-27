@@ -13,6 +13,7 @@ import club_model
 import practice_model
 # Imports for DB connection
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm import joinedload
 from db_helper import db
 
 """
@@ -158,9 +159,11 @@ class ClubPractices(Resource):
             now = datetime.datetime.now()
             weekStart = datetime.datetime.strptime(str(now.year)+'-'+str(weekNumber)+'-1', "%G-%V-%u")
             weekEnd = datetime.datetime.strptime(str(now.year)+'-'+str(weekNumber)+'-7', "%G-%V-%u")
-            practices = practice_model.Practice.query.filter(
-                                practice_model.Practice.startTime >= weekStart,
-                                practice_model.Practice.startTime <= weekEnd).order_by(practice_model.Practice.startTime.asc()).all()
+            practices = practice_model.Practice.query.\
+                filter(practice_model.Practice.startTime >= weekStart,
+                       practice_model.Practice.startTime <= weekEnd)\
+                .order_by(practice_model.Practice.startTime.asc())\
+                .all()
             return jsonify(self.practices_schema.dump(practices).data)
         else:
             # TODO: Do the same as above with weeknember, but wrap in for loop 

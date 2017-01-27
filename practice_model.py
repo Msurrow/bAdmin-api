@@ -26,9 +26,9 @@ class Practice(db.Model):
 
     startTime = db.Column(db.DateTime(timezone=True), unique=False, nullable=False)
     durationMinutes = db.Column(db.Integer, unique=False, nullable=False)
-    invited = db.relationship('User', secondary=user_invited_practice, backref=db.backref('invitedPractices', lazy='dynamic'))
-    confirmed = db.relationship('User', secondary=user_confirmed_practice, backref=db.backref('confirmedPractices', lazy='dynamic'))
-    declined = db.relationship('User', secondary=user_declined_practice, backref=db.backref('declinedPractices', lazy='dynamic'))
+    invited = db.relationship('User', secondary=user_invited_practice, backref=db.backref('invitedPractices', lazy='joined'))
+    confirmed = db.relationship('User', secondary=user_confirmed_practice, backref=db.backref('confirmedPractices', lazy='joined'))
+    declined = db.relationship('User', secondary=user_declined_practice, backref=db.backref('declinedPractices', lazy='joined'))
 
     def __init__(self, name, club, startTime, durationMinutes):
         self.name = name

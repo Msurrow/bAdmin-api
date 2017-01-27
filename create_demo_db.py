@@ -5,6 +5,12 @@ import club_model
 import practice_model
 import dateutil.parser
 
+"""
+Clear postgres db
+DROP SCHEMA public CASCADE;CREATE SCHEMA public;GRANT ALL ON SCHEMA public TO postgres;GRANT ALL ON SCHEMA public TO public;COMMENT ON SCHEMA public IS 'standard public schema';
+"""
+
+
 with app.app_context():
     db_helper.db.create_all()
 
