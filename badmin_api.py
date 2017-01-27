@@ -31,6 +31,7 @@ api.add_resource(Practices, "/practice/<int:practiceID>", methods=["GET", "PUT",
 
 # Setup database
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URL']
+app.config['SQLALCHEMY_POOL_SIZE'] = 5
 db.init_app(app)
 # Tell sqlalchemy that this app is the current app
 app.app_context().push()
