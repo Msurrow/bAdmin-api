@@ -13,7 +13,6 @@ import club_model
 import practice_model
 # Imports for DB connection
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy.orm import joinedload
 from db_helper import db
 
 """
@@ -160,7 +159,8 @@ class ClubPractices(Resource):
             weekStart = datetime.datetime.strptime(str(now.year)+'-'+str(weekNumber)+'-1', "%G-%V-%u")
             weekEnd = datetime.datetime.strptime(str(now.year)+'-'+str(weekNumber)+'-7', "%G-%V-%u")
             practices = practice_model.Practice.query.\
-                filter(practice_model.Practice.startTime >= weekStart,
+                filter(practice_model.Practice.club_id == clubID,
+                       practice_model.Practice.startTime >= weekStart,
                        practice_model.Practice.startTime <= weekEnd)\
                 .order_by(practice_model.Practice.startTime.asc())\
                 .all()

@@ -5,7 +5,7 @@ from flask_restful import Api
 from flask_cors import CORS
 import logging, logging.config, yaml
 # Import API resources
-from user_resource import Users
+from user_resource import Users, UserPractices
 from club_resource import Clubs, ClubPractices
 from practice_resource import Practices
 # Import DB resources
@@ -19,15 +19,16 @@ CORS(app)
 api = Api(app)
 
 api.add_resource(Users, "/user", methods=["GET", "POST"], endpoint="users_all")
-api.add_resource(Users, "/user/<int:userID>", methods=["GET", "PUT"], endpoint="users_with_id")
+api.add_resource(Users, "/user/<int:userID>", methods=["GET", "PUT"], endpoint="user_with_id")
+api.add_resource(UserPractices, "/user/<int:userID>/practices", methods=["GET"], endpoint="user_practies_with_id")
 
 api.add_resource(Clubs, "/club", methods=["GET", "POST"], endpoint="clubs_all")
-api.add_resource(Clubs, "/club/<int:clubID>", methods=["GET", "PUT", "DELETE"], endpoint="clubs_with_id")
+api.add_resource(Clubs, "/club/<int:clubID>", methods=["GET", "PUT", "DELETE"], endpoint="club_with_id")
 api.add_resource(ClubPractices, "/club/<int:clubID>/practicesbyweek", methods=["GET"], endpoint="club_practies_by_week_all")
 api.add_resource(ClubPractices, "/club/<int:clubID>/practicesbyweek/<int:weekNumber>", methods=["GET"], endpoint="club_practies_by_week_with_number")
 
 api.add_resource(Practices, "/practice", methods=["GET", "POST"], endpoint="practices_all")
-api.add_resource(Practices, "/practice/<int:practiceID>", methods=["GET", "PUT", "DELETE"], endpoint="practices_with_id")
+api.add_resource(Practices, "/practice/<int:practiceID>", methods=["GET", "PUT", "DELETE"], endpoint="practice_with_id")
 
 # Setup database
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URL']

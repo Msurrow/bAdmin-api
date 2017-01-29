@@ -3,10 +3,11 @@ from flask_restful import Resource, abort, request
 import debug_code_generator
 import traceback
 import logging
+import datetime
 # Imports for input validation (marsmallow)
 from validation_schemas import UserValidationSchema
 # Imports for serialization (marshmallow)
-from serialization_schemas import UserSchema
+from serialization_schemas import UserSchema, PracticeSchema
 import user_model
 import club_model
 import practice_model
@@ -119,3 +120,22 @@ class Users(Resource):
 
     def delete(self, practiceID):
         abort(501)
+
+"""
+Resource for handling club-pecific temporally related requests on Club resource
+"""
+class UserPractices(Resource):
+
+    def __init__(self):
+        self.practices_schema = PracticeSchema(many=True)
+        self.logger = logging.getLogger('root')
+
+    def get(self, userID):
+        #now = datetime.datetime.now() ,practice_model.Practice.startTime >= now)
+        practices = practice_model.Practice.query.\
+            filter((practice_model.Practice.invited.any(user_model.User.id == userID)) |
+                   (practice_model.Practice.confirmed.any(user_model.User.id == userID)) |
+                   (practice_model.Practice.declined.any(user_model.User.id == userID)))\
+            .order_by(practice_model.Practice.startTime.asc())\
+            .all()
+        return jsonify(self.practices_schema.dump(practices).data)
