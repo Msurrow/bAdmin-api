@@ -54,9 +54,9 @@ class Practices(Resource):
             practice = practice_model.Practice(request.json['name'], club, st, request.json['durationMinutes'])
         except ValueError as err:
             debug_code = debug_code_generator.gen_debug_code()
-            self.logging.error("ValueError happend in practice_model.py (catched in practice_resource.py). Debug code: {}. Stacktrace follows: ".format(debug_code))
-            self.logging.error(traceback.format_exc())
-            self.logging.error(err)
+            self.logger.error("ValueError happend in practice_model.py (catched in practice_resource.py). Debug code: {}. Stacktrace follows: ".format(debug_code))
+            self.logger.error(traceback.format_exc())
+            self.logger.error(err)
             abort(500, message="Somehow the validations passed but the input still did not match the SQL schema. For security reasons no further details on the error will be provided other than a debug-code: {}. Please email the API developer with the debug-code and yell at him!".format(debug_code))
 
         # Fecth all invited users and add to practice
@@ -75,9 +75,9 @@ class Practices(Resource):
             db.session.commit()
         except IntegrityError as err:
             debug_code = debug_code_generator.gen_debug_code()
-            self.logging.error("SQL IntegrityError happend in practice_resource.py. Debug code: {}. Stacktrace follows: ".format(debug_code))
-            self.logging.error(traceback.format_exc())
-            self.logging.error(err)
+            self.logger.error("SQL IntegrityError happend in practice_resource.py. Debug code: {}. Stacktrace follows: ".format(debug_code))
+            self.logger.error(traceback.format_exc())
+            self.logger.error(err)
             abort(500, message="Somehow the validations passed but the input still did not match the SQL schema. For security reasons no further details on the error will be provided other than a debug-code: {}. Please email the API developer with the debug-code and yell at him!".format(debug_code))
 
         return jsonify(self.practice_schema.dump(practice).data)
@@ -87,6 +87,7 @@ class Practices(Resource):
         # in the PUT (update) request, since we do partical/relative update.
         # practiceID type is enforced by Flask-RESTful
         _, errors = self.practice_validation_schema.load(request.json, partial=('club', 'name', 'startTime', 'durationMinutes', 'invited', 'confiremd', 'declined',))
+        self.logger.debug("errors: {}".format(errors))
         if len(errors) > 0:
             abort(400, message="The reqeust input could bot be validated. There were the following validation errors: {}".format(errors))
 
@@ -143,8 +144,8 @@ class Practices(Resource):
             db.session.commit()
         except IntegrityError as err:
             debug_code = debug_code_generator.gen_debug_code()
-            self.logging.error("SQL IntegrityError happend in practice_resource.py. Debug code: {}. Stacktrace follows: ".format(debug_code))
-            self.logging.error(err)
+            self.logger.error("SQL IntegrityError happend in practice_resource.py. Debug code: {}. Stacktrace follows: ".format(debug_code))
+            self.logger.error(err)
             abort(500, message="Somehow the validations passed but the input still did not match the SQL schema. For security reasons no further details on the error will be provided other than a debug-code: {}. Please email the API developer with the debug-code and yell at him!".format(debug_code))
 
         return jsonify(self.practice_schema.dump(practice).data)
@@ -160,6 +161,6 @@ class Practices(Resource):
             db.session.commit()
         except SQLAlchemyError as err:
             debug_code = debug_code_generator.gen_debug_code()
-            self.logging.error("SQL Error happend in practice_resource.py. Debug code: {}. Stacktrace follows: ".format(debug_code))
-            self.logging.error(err)
+            self.logger.error("SQL Error happend in practice_resource.py. Debug code: {}. Stacktrace follows: ".format(debug_code))
+            self.logger.error(err)
             abort(500, message="The database blew up. For security reasons no further details on the error will be provided other than a debug-code: {}. Please email the API developer with the debug-code and yell at him!".format(debug_code))
