@@ -1,18 +1,6 @@
 from db_helper import db
 from db_helper import user_member_club, user_admin_club, user_coach_club, user_membershiprequest_club
 
-"""
-Club datatype:
-{
-    id: <int>, not null
-    name: <string>, not null, unique
-    members: <list:int>, int must be id of existing User
-    admins: <list:int>, not empty, int must be id of existing User
-    coaches: <list:int>, int must be id of existing User
-    membershipRequests: <list:int, int must be id of existing User
-}
-"""
-
 class Club(db.Model):
     id = db.Column(db.Integer, primary_key=True, unique=True, nullable=False)
     name = db.Column(db.String(500), unique=True, nullable=False)

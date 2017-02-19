@@ -3,7 +3,6 @@ from flask_restful import Resource, abort, request
 import debug_code_generator
 import traceback
 import logging
-import datetime
 # Imports for input validation (marsmallow)
 from validation_schemas import UserValidationSchema
 # Imports for serialization (marshmallow)
@@ -14,18 +13,20 @@ import practice_model
 # Imports for DB connection
 from sqlalchemy.exc import IntegrityError
 from db_helper import db
+from auth_helper import auth
+
 
 """
-Resource for handling non-user-pecific actions on User resource
+Resource for handling non user-specific actions on User resource
 """
 class Users(Resource):
-
     def __init__(self):
         self.user_schema = UserSchema()
         self.users_schema = UserSchema(many=True)
         self.user_validation_schema = UserValidationSchema()
         self.logger = logging.getLogger('root')
 
+    @auth.login_required
     def get(self, userID=None):
         if userID:
             # userID type (must be int) is enforced by Flask-RESTful
@@ -40,12 +41,13 @@ class Users(Resource):
 
     def post(self):
         # Input validation using Marshmallow.
-        _, errors = self.user_validation_schema.load(request.json)
+        _, errors = self.user_validation_schema.load(request.json, partial=('userAccessToken','clubs','practices'))
         if len(errors) > 0:
             abort(400, message="The reqeust input could bot be validated. There were the following validation errors: {}".format(errors))
 
         try:
-            user = user_model.User(request.json['name'], request.json['email'], request.json['phone'])
+            # Password is hashed in User.init
+            user = user_model.User(request.json['name'], request.json['email'], request.json['phone'], request.json['password'])
         except ValueError as err:
             debug_code = debug_code_generator.gen_debug_code()
             self.logger.error("ValueError happend in user_model.py (catched in user_resource.py). Debug code: {}. Stacktrace follows: ".format(debug_code))
@@ -68,7 +70,8 @@ class Users(Resource):
         # Input validation using Marshmallow. No parameter is actually required
         # in the PUT (update) request, since we do partical/relative update.
         # userID type is enforced by Flask-RESTful
-        _, errors = self.user_validation_schema.load(request.json, partial=('name','email','phone','clubs','practices',))
+
+        _, errors = self.user_validation_schema.load(request.json, partial=('name','email','phone','password','clubs','practices',))
         if len(errors) > 0:
             abort(400, message="The reqeust input could bot be validated. There were the following validation errors: {}".format(errors))
 
@@ -89,6 +92,10 @@ class Users(Resource):
 
         if 'phone' in request.json:
             user.phone = request.json['phone']
+
+        if 'password' in request.json:
+            hashedPassword = request.json['password']
+            user.password = hashedPassword
 
         # Fecth all users' clubs and add to user
         if 'clubs' in request.json:

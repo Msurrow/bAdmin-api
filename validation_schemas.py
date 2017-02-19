@@ -58,7 +58,6 @@ Defintions of Marshmallow shcemas for validating JSON input.
 
 
 class GlobalSchema(Schema):
-    userID = fields.Int(required=True)
     userAccessToken = fields.String(required=True)
 
 
@@ -81,6 +80,8 @@ class PracticeValidationSchema(GlobalSchema):
 class UserValidationSchema(GlobalSchema):
     name = fields.String(required=True, validate=validate.Length(min=1, error="User name cannot be an empty string."))
     email = fields.Email(required=True)
-    phone = fields.Int(validate=validate.Length(min=8, max=8, error="Phone number must be a valid DK phonenumber without area code (8 digits)"))
+    #phone = fields.Int(required=False,validate=validate.Length(min=8, max=8, error="Phone number must be a valid DK phonenumber without area code (8 digits)"))
+    phone = fields.Int(required=False)
+    password = fields.String(required=False)
     clubs = fields.List(fields.Int(), validate=_is_list_with_valid_clubIDs)
     practices = fields.List(fields.Int(), validate=_is_list_with_valid_practiceIDs)

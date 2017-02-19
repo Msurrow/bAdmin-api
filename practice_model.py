@@ -3,21 +3,8 @@ from db_helper import db
 from db_helper import user_invited_practice, user_confirmed_practice, user_declined_practice
 from club_model import Club
 
-"""
-Practices datatype:
-{
-    id: <int>, not null
-    name: <string>, not null not empty
-    club: <int>, not null club must be id of existing club
-    startTime: <datetime>, not null
-    durationMinutes: <int>, int must be >0
-    invited: <list:int>, ints must be id of existing user
-    confirmed: <list:int>, ints must be id of existing user
-    declined: <list:ing>, ints must be id of existing user
-}
-"""
-
 class Practice(db.Model):
+    __tabelname__ = "practice"
     id = db.Column(db.Integer, primary_key=True, unique=True, nullable=False)
     name = db.Column(db.String(500), unique=False, nullable=False)
 
