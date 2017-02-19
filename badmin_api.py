@@ -50,14 +50,14 @@ if not app.debug:
 
 # Setup security and helper methods
 @auth.verify_password
-def verify_password(userID_or_token, password):
-    if not userID_or_token:
+def verify_password(useremail_or_token, password):
+    if not useremail_or_token:
         return False
     # first try to authenticate by token
-    user = user_model.User.verify_auth_token(userID_or_token)
+    user = user_model.User.verify_auth_token(useremail_or_token)
     if not user:
         # try to authenticate with username/password
-        user = user_model.User.query.get(userID_or_token)
+        user = user_model.User.query.filter_by(email=useremail_or_token).first()
         if not user or not user.verify_password(password):
             return False
     return True
@@ -72,8 +72,9 @@ def index():
 def get_auth_token():
     if not request or not request.authorization:
         abort(400, "Missing HTTPBasic auth parameters")
-    token = user_model.User.query.get(request.authorization.username).generate_auth_token()
-    return jsonify({'token': token.decode('ascii')})
+    user = user_model.User.query.filter_by(email=request.authorization.username).first()
+    token = user.generate_auth_token()
+    return jsonify({'userID':user.id,'token': token.decode('ascii')})
 
 if __name__ == "__main__":
     # When run with gunicorn this isn't called, and gunicorn will run as debug=false

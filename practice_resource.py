@@ -14,6 +14,8 @@ import practice_model
 # Imports for DB connection
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from db_helper import db
+from auth_helper import auth
+
 
 """
 Resource for handling non-practice-pecific actions on Practice resource
@@ -26,6 +28,7 @@ class Practices(Resource):
         self.practice_validation_schema = PracticeValidationSchema()
         self.logger = logging.getLogger('root')
 
+    @auth.login_required
     def get(self, practiceID=None):
         if practiceID:
             # practiceID type (must be int) is enforced by Flask-RESTful
@@ -38,6 +41,7 @@ class Practices(Resource):
             practices = practice_model.Practice.query.filter(1==1).order_by(practice_model.Practice.startTime.asc()).all()
             return jsonify(self.practices_schema.dump(practices).data)
 
+    @auth.login_required
     def post(self):
         # Input validation using Marshmallow.
         _, errors = self.practice_validation_schema.load(request.json)
@@ -82,6 +86,7 @@ class Practices(Resource):
 
         return jsonify(self.practice_schema.dump(practice).data)
 
+    @auth.login_required
     def put(self, practiceID):
         # Input validation using Marshmallow. No parameter is actually required
         # in the PUT (update) request, since we do partical/relative update.
@@ -150,6 +155,7 @@ class Practices(Resource):
 
         return jsonify(self.practice_schema.dump(practice).data)
 
+    @auth.login_required
     def delete(self, practiceID):
         # Get practice object from DB
         practice = practice_model.Practice.query.get(practiceID)

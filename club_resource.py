@@ -14,6 +14,8 @@ import practice_model
 # Imports for DB connection
 from sqlalchemy.exc import IntegrityError
 from db_helper import db
+from auth_helper import auth
+
 
 """
 Resource for handling non-club-pecific actions on Club resource
@@ -26,6 +28,7 @@ class Clubs(Resource):
         self.club_validation_schema = ClubValidationSchema()
         self.logger = logging.getLogger('root')
 
+    @auth.login_required
     def get(self, clubID=None):
         if clubID:
             # clubID type (must be int) is enforced by Flask-RESTful
@@ -38,6 +41,7 @@ class Clubs(Resource):
             clubs = club_model.Club.query.filter(1==1).all()
             return jsonify(self.clubs_schema.dump(clubs).data)
 
+    @auth.login_required
     def post(self):
         # Input validation using Marshmallow.
         _, errors = self.club_validation_schema.load(request.json)
@@ -74,6 +78,7 @@ class Clubs(Resource):
 
         return jsonify(self.club_schema.dump(club).data)
 
+    @auth.login_required
     def put(self, clubID):
         # Input validation using Marshmallow. No parameter is actually required
         # in the PUT (update) request, since we do partical/relative update.
@@ -140,6 +145,7 @@ class Clubs(Resource):
 
         return jsonify(self.club_schema.dump(club).data)
 
+    @auth.login_required
     def delete(self, practiceID):
         abort(501)
 
@@ -153,6 +159,7 @@ class ClubPractices(Resource):
         self.practices_schema = PracticeSchema(many=True)
         self.logger = logging.getLogger('root')
 
+    @auth.login_required
     def get(self, clubID, weekNumber=None):
         if weekNumber:
             now = datetime.datetime.now()

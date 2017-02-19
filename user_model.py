@@ -24,7 +24,7 @@ class User(db.Model):
         self.hashed_password = self.hash_password(password)
 
     def hash_password(self, password):
-        return pwd_context.encrypt(password)
+        return pwd_context.hash(password)
 
     def verify_password(self, password):
         return pwd_context.verify(password, self.hashed_password)

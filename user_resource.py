@@ -39,6 +39,7 @@ class Users(Resource):
             users = user_model.User.query.filter(1 == 1).all()
             return jsonify(self.users_schema.dump(users).data)
 
+    # Don't require login to create user
     def post(self):
         # Input validation using Marshmallow.
         _, errors = self.user_validation_schema.load(request.json, partial=('userAccessToken','clubs','practices'))
@@ -66,6 +67,7 @@ class Users(Resource):
 
         return jsonify(self.user_schema.dump(user).data)
 
+    @auth.login_required
     def put(self, userID):
         # Input validation using Marshmallow. No parameter is actually required
         # in the PUT (update) request, since we do partical/relative update.
@@ -125,6 +127,7 @@ class Users(Resource):
 
         return jsonify(self.user_schema.dump(user).data)
 
+    @auth.login_required
     def delete(self, practiceID):
         abort(501)
 
@@ -137,6 +140,7 @@ class UserPractices(Resource):
         self.practices_schema = PracticeSchema(many=True)
         self.logger = logging.getLogger('root')
 
+    @auth.login_required
     def get(self, userID):
         #now = datetime.datetime.now() ,practice_model.Practice.startTime >= now)
         practices = practice_model.Practice.query.\
