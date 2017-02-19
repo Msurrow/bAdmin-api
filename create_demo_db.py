@@ -15,8 +15,8 @@ with app.app_context():
     db_helper.db.create_all()
 
     test_user_1 = user_model.User('Anders And', 'anders@andebymail.com', '12345678', 'foobar')
-    test_user_2 = user_model.User('Andersine And', 'andersine@andebymail.com', '12345678', '')
-    test_user_3 = user_model.User('Joakim von And', 'joakim@andebymail.com', '12345678', '')
+    test_user_2 = user_model.User('Andersine And', 'andersine@andebymail.com', '12345678', 'foobar')
+    test_user_3 = user_model.User('Joakim von And', 'joakim@andebymail.com', '12345678', 'foobar')
     db_helper.db.session.add(test_user_1)
     db_helper.db.session.add(test_user_2)
     db_helper.db.session.add(test_user_3)
