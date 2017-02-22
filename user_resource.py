@@ -13,6 +13,7 @@ import practice_model
 # Imports for DB connection
 from sqlalchemy.exc import IntegrityError
 from db_helper import db
+from sqlalchemy import exists
 from auth_helper import auth
 
 
@@ -42,7 +43,7 @@ class Users(Resource):
     # Don't require login to create user
     def post(self):
         # Input validation using Marshmallow.
-        _, errors = self.user_validation_schema.load(request.json, partial=('userAccessToken','clubs','practices'))
+        _, errors = self.user_validation_schema.load(request.json, partial=('clubs','practices'))
         if len(errors) > 0:
             abort(400, message="The reqeust input could bot be validated. There were the following validation errors: {}".format(errors))
 
@@ -55,6 +56,11 @@ class Users(Resource):
             self.logger.error(traceback.format_exc())
             self.logger.error(err)
             abort(500, message="Somehow the validations passed but the input still did not match the SQL schema. For security reasons no further details on the error will be provided other than a debug-code: {}. Please email the API developer with the debug-code and yell at him!".format(debug_code))
+
+        # Check if we have an 'email already exists', single that out to give a specific user error
+        email_exists = db.session.query(db.exists().where(user_model.User.email == request.json['email'])).scalar()
+        if email_exists:
+            abort(409, message="The email {} is already in use.".format(request.json['email']))
 
         try:
             db.session.add(user)

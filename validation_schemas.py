@@ -56,12 +56,7 @@ def _is_valid_club_ID(clubID):
 Defintions of Marshmallow shcemas for validating JSON input.
 """
 
-
-class GlobalSchema(Schema):
-    userAccessToken = fields.String(required=True)
-
-
-class ClubValidationSchema(GlobalSchema):
+class ClubValidationSchema(Schema):
     name = fields.String(required=True, validate=validate.Length(min=1, error="Club name cannot be an empty string."))
     admins = fields.List(fields.Int(), validate=_is_list_with_valid_userIDs)
     coaches = fields.List(fields.Int(), validate=_is_list_with_valid_userIDs)
@@ -69,7 +64,7 @@ class ClubValidationSchema(GlobalSchema):
     members = fields.List(fields.Int(), validate=_is_list_with_valid_userIDs)
 
 
-class PracticeValidationSchema(GlobalSchema):
+class PracticeValidationSchema(Schema):
     club = fields.Int(required=True, validate=_is_valid_club_ID)
     name = fields.String(required=True, validate=validate.Length(min=1, error="Practice name cannot be an empty string."))
     startTime = fields.DateTime(required=True)
@@ -77,7 +72,7 @@ class PracticeValidationSchema(GlobalSchema):
     invited = fields.List(fields.Int(), validate=_is_list_with_valid_userIDs)
 
 
-class UserValidationSchema(GlobalSchema):
+class UserValidationSchema(Schema):
     name = fields.String(required=True, validate=validate.Length(min=1, error="User name cannot be an empty string."))
     email = fields.Email(required=True)
     #phone = fields.Int(required=False,validate=validate.Length(min=8, max=8, error="Phone number must be a valid DK phonenumber without area code (8 digits)"))
