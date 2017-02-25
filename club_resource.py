@@ -80,13 +80,11 @@ class Clubs(Resource):
 
     @auth.login_required
     def put(self, clubID):
-        print("DEADBEEF PUT")
         # Input validation using Marshmallow. No parameter is actually required
         # in the PUT (update) request, since we do partical/relative update.
         # clubID type is enforced by Flask-RESTful
         _, errors = self.club_validation_schema.load(request.json, partial=('name',))
         if len(errors) > 0:
-            print("DEADBEEF PUT#2")
             abort(400, message="The reqeust input could bot be validated. There were the following validation errors: {}".format(errors))
 
         # Get club object from DB

@@ -4,6 +4,7 @@ from flask import Flask, jsonify, g, request, abort
 from flask_restful import Api
 from flask_cors import CORS
 import logging, logging.config, yaml
+from WSGIRawRequestLogger import WSGIRawRequestLogger
 # Import API resources
 from user_resource import Users, UserPractices
 from club_resource import Clubs, ClubPractices
@@ -78,4 +79,5 @@ def get_auth_token():
 
 if __name__ == "__main__":
     # When run with gunicorn this isn't called, and gunicorn will run as debug=false
+    # app.wsgi_app = WSGIRawRequestLogger(app.wsgi_app)
     app.run(debug=True, host="0.0.0.0",port=int(sys.argv[1]))

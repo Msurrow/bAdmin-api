@@ -27,7 +27,6 @@ class User(db.Model):
         return pwd_context.hash(password)
 
     def verify_password(self, password):
-        print("DEADBEEF: "+password)
         return pwd_context.verify(password, self.hashed_password)
 
     def generate_auth_token(self, expiration=86400):
