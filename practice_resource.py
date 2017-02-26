@@ -4,6 +4,7 @@ import debug_code_generator
 import dateutil.parser
 import traceback
 import logging
+from datetime import timedelta
 # Imports for input validation (marsmallow)
 from validation_schemas import PracticeValidationSchema
 # Imports for serialization (flask-marshmallow)
@@ -53,30 +54,43 @@ class Practices(Resource):
         # All request.json input parameters are validated by Marshmallow
         # schema.
         club = club_model.Club.query.get(request.json['club'])
+
         try:
             st = dateutil.parser.parse(request.json['startTime'])
-            practice = practice_model.Practice(request.json['name'], club, st, request.json['durationMinutes'])
+            invited = []
+
+            # Fecth all invited users and add to practice
+            if 'invited' in request.json:
+                user_objects = []
+                for userID in request.json['invited']:
+                    u = user_model.User.query.get(userID)
+                    if u is not None:
+                        user_objects.append(u)
+                invited = user_objects
+
+            repeats = 1
+
+            if 'repeats' in request.json and request.json['repeats'] is not None:
+                repeats = int(request.json['repeats'])
+
+            for x in range(0, repeats):
+                practice = practice_model.Practice(request.json['name'], club, st, request.json['durationMinutes'])
+                practice.invited = invited
+
+                # Add a practice
+                db.session.add(practice)
+
+                # Add one week to the starttime (for next practice)
+                st = st + timedelta(weeks=1)
+
+            db.session.commit()
+
         except ValueError as err:
             debug_code = debug_code_generator.gen_debug_code()
             self.logger.error("ValueError happend in practice_model.py (catched in practice_resource.py). Debug code: {}. Stacktrace follows: ".format(debug_code))
             self.logger.error(traceback.format_exc())
             self.logger.error(err)
             abort(500, message="Somehow the validations passed but the input still did not match the SQL schema. For security reasons no further details on the error will be provided other than a debug-code: {}. Please email the API developer with the debug-code and yell at him!".format(debug_code))
-
-        # Fecth all invited users and add to practice
-        if 'invited' in request.json:
-            user_objects = []
-            for userID in request.json['invited']:
-                u = user_model.User.query.get(userID)
-                if u is not None:
-                    user_objects.append(u)
-            practice.invited = user_objects
-        else:
-            practice.invited = []
-
-        try:
-            db.session.add(practice)
-            db.session.commit()
         except IntegrityError as err:
             debug_code = debug_code_generator.gen_debug_code()
             self.logger.error("SQL IntegrityError happend in practice_resource.py. Debug code: {}. Stacktrace follows: ".format(debug_code))

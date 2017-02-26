@@ -70,7 +70,7 @@ class PracticeValidationSchema(Schema):
     startTime = fields.DateTime(required=True)
     durationMinutes = fields.Int(required=True, validate=validate.Range(min=1, max=1440, error="Practice duration must be at least one minute and less than one day (24hours)"))
     invited = fields.List(fields.Int(), validate=_is_list_with_valid_userIDs)
-
+    repeats = fields.Int(required=False, allow_none=True, validate=validate.Range(min=0, max=100, error="Number of practices to create at one time is limited to 100"))
 
 class UserValidationSchema(Schema):
     name = fields.String(required=True, validate=validate.Length(min=1, error="User name cannot be an empty string."))
