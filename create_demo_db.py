@@ -30,11 +30,11 @@ with app.app_context():
     db_helper.db.session.add(test_club_1)
     db_helper.db.session.commit()
 
-    test_club_2 = club_model.Club('Von And Badmintonklub', [test_user_3])
-    test_club_2.members.append(test_user_2)
-    test_club_2.coaches.append(test_user_2)
-    db_helper.db.session.add(test_club_2)
-    db_helper.db.session.commit()
+    # test_club_2 = club_model.Club('Von And Badmintonklub', [test_user_3])
+    # test_club_2.members.append(test_user_2)
+    # test_club_2.coaches.append(test_user_2)
+    # db_helper.db.session.add(test_club_2)
+    # db_helper.db.session.commit()
 
     test_practice_1 = practice_model.Practice('A-træning', test_club_1, dateutil.parser.parse('2017-01-01T12:00:00+01:00'), 120)
     test_practice_1.invited.append(test_user_1)
