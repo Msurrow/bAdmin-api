@@ -3,6 +3,7 @@ from flask_restful import Resource, abort, request
 import debug_code_generator
 import traceback
 import logging
+from datetime import date
 # Imports for input validation (marsmallow)
 from validation_schemas import UserValidationSchema
 # Imports for serialization (marshmallow)
@@ -12,8 +13,8 @@ import club_model
 import practice_model
 # Imports for DB connection
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy import Date, cast
 from db_helper import db
-from sqlalchemy import exists
 from auth_helper import auth
 
 
@@ -148,11 +149,11 @@ class UserPractices(Resource):
 
     @auth.login_required
     def get(self, userID):
-        #now = datetime.datetime.now() ,practice_model.Practice.startTime >= now)
         practices = practice_model.Practice.query.\
-            filter((practice_model.Practice.invited.any(user_model.User.id == userID)) |
+            filter((cast(practice_model.Practice.startTime, Date) >= date.today()) &
+                   ((practice_model.Practice.invited.any(user_model.User.id == userID)) |
                    (practice_model.Practice.confirmed.any(user_model.User.id == userID)) |
-                   (practice_model.Practice.declined.any(user_model.User.id == userID)))\
+                   (practice_model.Practice.declined.any(user_model.User.id == userID))))\
             .order_by(practice_model.Practice.startTime.asc())\
             .all()
         return jsonify(self.practices_schema.dump(practices).data)
