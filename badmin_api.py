@@ -1,15 +1,16 @@
 import sys
 import os
-from flask import Flask, jsonify, g, request, abort
+from flask import Flask, jsonify, request, abort, render_template
 from flask_restful import Api
 from flask_cors import CORS
 import logging, logging.config, yaml
-from WSGIRawRequestLogger import WSGIRawRequestLogger
 # Import API resources
 from user_resource import Users, UserPractices
 from club_resource import Clubs, ClubPractices
 from practice_resource import Practices
 import user_model
+import club_model
+import practice_model
 # Import DB resources
 from db_helper import db
 from serialization_schemas import ma
@@ -67,6 +68,14 @@ def verify_password(useremail_or_token, password):
 @app.route("/")
 def index():
     return jsonify({"TODO":"Please write documentation"})
+
+
+@app.route("/stats")
+def stats():
+    _numUsers = user_model.User.query.count()
+    _numClubs = club_model.Club.query.count()
+    _numPractices = practice_model.Practice.query.count()
+    return render_template('stats.html', numUsers=_numUsers, numClubs=_numClubs, numPractices=_numPractices)
 
 @app.route('/token')
 @auth.login_required
