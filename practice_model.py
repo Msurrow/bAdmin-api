@@ -11,7 +11,7 @@ class Practice(db.Model):
     club_id = db.Column(db.Integer, db.ForeignKey('club.id'))
     club = db.relationship('Club', backref=db.backref('practices'))
 
-    startTime = db.Column(db.DateTime(timezone=True), unique=False, nullable=False)
+    startTime = db.Column(db.TIMESTAMP(timezone=False), unique=False, nullable=False)
     durationMinutes = db.Column(db.Integer, unique=False, nullable=False)
     invited = db.relationship('User', secondary=user_invited_practice, backref=db.backref('invitedPractices', lazy='joined'))
     confirmed = db.relationship('User', secondary=user_confirmed_practice, backref=db.backref('confirmedPractices', lazy='joined'))

@@ -46,6 +46,7 @@ class Practices(Resource):
     def post(self):
         # Input validation using Marshmallow.
         _, errors = self.practice_validation_schema.load(request.json)
+
         if len(errors) > 0:
             abort(400, message="The reqeust input could bot be validated. There were the following validation errors: {}".format(errors))
 
@@ -57,6 +58,9 @@ class Practices(Resource):
 
         try:
             st = dateutil.parser.parse(request.json['startTime'])
+            # Assume input timestring is in UTC and drop all timezone info
+            st = st.replace(tzinfo=None)
+
             invited = []
 
             # Fecth all invited users and add to practice
@@ -127,7 +131,9 @@ class Practices(Resource):
 
         # TODO: Validate starttime is not int the past
         if 'startTime' in request.json:
-            practice.startTime = dateutil.parser.parse(request.json['startTime'])
+            st = dateutil.parser.parse(request.json['startTime'])
+            # Assume input timestring is in UTC and drop all timezone info
+            practice.startTime = st.replace(tzinfo=None)
 
         if 'durationMinutes' in request.json:
             practice.durationMinutes = request.json['durationMinutes']

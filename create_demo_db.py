@@ -83,4 +83,5 @@ with app.app_context():
     db_helper.db.session.add(test_practice_7)
     db_helper.db.session.add(test_practice_8)
     db_helper.db.session.add(test_practice_9)
+  
     db_helper.db.session.commit()
