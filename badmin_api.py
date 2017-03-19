@@ -75,7 +75,11 @@ def stats():
     _numUsers = user_model.User.query.count()
     _numClubs = club_model.Club.query.count()
     _numPractices = practice_model.Practice.query.count()
-    return render_template('stats.html', numUsers=_numUsers, numClubs=_numClubs, numPractices=_numPractices)
+    _numPlayerPracticeRelationInvited = db.engine.execute("select count(*) from user_invited_practice;").scalar()
+    _numPlayerPracticeRelationConfirmed = db.engine.execute("select count(*) from user_confirmed_practice;").scalar()
+    _numPlayerPracticeRelationDeclined = db.engine.execute("select count(*) from user_declined_practice;").scalar()
+    _totalPlayerPracticeRelation = _numPlayerPracticeRelationInvited + _numPlayerPracticeRelationConfirmed + _numPlayerPracticeRelationDeclined
+    return render_template('stats.html', numUsers=_numUsers, numClubs=_numClubs, numPractices=_numPractices, numInvited=_numPlayerPracticeRelationInvited, numConfirmed=_numPlayerPracticeRelationConfirmed, numDeclined=_numPlayerPracticeRelationDeclined, numTotal=_totalPlayerPracticeRelation)
 
 @app.route('/token')
 @auth.login_required
