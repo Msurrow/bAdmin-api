@@ -15,11 +15,12 @@ import practice_model
 # Imports for DB connection
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from db_helper import db
+# Imports for security
 from auth_helper import auth
 
 
 """
-Resource for handling non-practice-pecific actions on Practice resource
+
 """
 class Practices(Resource):
 
@@ -109,7 +110,7 @@ class Practices(Resource):
         # Input validation using Marshmallow. No parameter is actually required
         # in the PUT (update) request, since we do partical/relative update.
         # practiceID type is enforced by Flask-RESTful
-        _, errors = self.practice_validation_schema.load(request.json, partial=('club', 'name', 'startTime', 'durationMinutes', 'invited', 'confiremd', 'declined',))
+        _, errors = self.practice_validation_schema.load(request.json, partial=('club', 'name', 'startTime', 'durationMinutes', 'invited',))
         self.logger.debug("errors: {}".format(errors))
         if len(errors) > 0:
             abort(400, message="The reqeust input could bot be validated. There were the following validation errors: {}".format(errors))
@@ -146,24 +147,6 @@ class Practices(Resource):
                 if u is not None:
                     user_objects.append(u)
             practice.invited = user_objects
-
-        # Fecth all confirmed users and add to practice
-        if 'confirmed' in request.json:
-            user_objects = []
-            for userID in request.json['confirmed']:
-                u = user_model.User.query.get(userID)
-                if u is not None:
-                    user_objects.append(u)
-            practice.confirmed = user_objects
-
-        # Fecth all declined users and add to practice
-        if 'declined' in request.json:
-            user_objects = []
-            for userID in request.json['declined']:
-                u = user_model.User.query.get(userID)
-                if u is not None:
-                    user_objects.append(u)
-            practice.declined = user_objects
 
         try:
             db.session.commit()

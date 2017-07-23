@@ -14,8 +14,14 @@ class User(db.Model):
     # 'coachInClubs' attribute/backref is defined in club_model
     # 'clubMembershipRequests' attribute/backref is defined in club_model
     # 'invitedPractices'  attribute/backref is defined in practice_model
-    # 'confirmedPractices'  attribute/backref is defined in practice_model
-    # 'declinedPractices'  attribute/backref is defined in practice_model
+
+    # Define one-to-many relationship with User: One user can have many
+    # ConfirmNotices, but a ConfirmNotice only has one User.
+    confirmedPractices = db.relationship('ConfirmNotice', backref='user', lazy='dynamic')
+
+    # Define one-to-many relationship with User: One user can have many
+    # DeclineNotices, but a DeclineNotice only has one User.
+    declinedPractices = db.relationship('DeclineNotice', backref='user', lazy='dynamic')
 
     def __init__(self, name, email, phone, password):
         self.name = name

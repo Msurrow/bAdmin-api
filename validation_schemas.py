@@ -6,8 +6,6 @@ import practice_model
 """
 Custom validators and helpers
 """
-
-
 def _is_list_with_valid_userIDs(listUserIDs):
     lst = listUserIDs
 
@@ -52,6 +50,16 @@ def _is_valid_club_ID(clubID):
         if club is None:
             raise ValidationError("Practice clubID must be ID of exiting club. Input was: {}".format(clubID))
 
+def _is_valid_user_ID(userID):
+    user = user_model.User.query.get(userID)
+    if user is None:
+        raise ValidationError("User does not exist. Input was: {}".format(userID))
+
+def _is_valid_practice_ID(practiceID):
+    practice = practice_model.Practice.query.get(practiceID)
+    if practice is None:
+        raise ValidationError("Practice does not exist. Input was: {}".format(practiceID))
+
 """
 Defintions of Marshmallow shcemas for validating JSON input.
 """
@@ -80,3 +88,9 @@ class UserValidationSchema(Schema):
     password = fields.String(required=False)
     clubs = fields.List(fields.Int(), validate=_is_list_with_valid_clubIDs)
     practices = fields.List(fields.Int(), validate=_is_list_with_valid_practiceIDs)
+
+class DeclineNoticeValidationSchema(Schema):
+    timestamp = fields.DateTime(required=True)
+
+class ConfirmNoticeValidationSchema(Schema):
+    timestamp = fields.DateTime(required=True)

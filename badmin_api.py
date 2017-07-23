@@ -9,16 +9,21 @@ import logging, logging.config, yaml
 from user_resource import Users, UserPractices
 from club_resource import Clubs, ClubPractices, ClubPracticesDay
 from practice_resource import Practices
+from decline_notice_resource import DeclineNotice
+from confirm_notice_resource import ConfirmNotice
 import user_model
 import club_model
 import practice_model
 # Import DB resources
 from db_helper import db
 from serialization_schemas import ma
+from flask_migrate import Migrate
+
 # Security
 from auth_helper import auth
 
 app = Flask(__name__)
+migrate = Migrate(app, db)
 CORS(app)
 
 # Setup API resources
@@ -36,6 +41,12 @@ api.add_resource(ClubPracticesDay, "/club/<int:clubID>/practicesbydate/<int:date
 
 api.add_resource(Practices, "/practice", methods=["GET", "POST"], endpoint="practices_all")
 api.add_resource(Practices, "/practice/<int:practiceID>", methods=["GET", "PUT", "DELETE"], endpoint="practice_with_id")
+
+api.add_resource(DeclineNotice, "/declineNotice", methods=["GET", "POST"], endpoint="decline_notice_all")
+api.add_resource(DeclineNotice, "/declineNotice/<int:declineNoticeID>", methods=["GET", "POST", "DELETE"], endpoint="decline_notice_with_id")
+
+api.add_resource(ConfirmNotice, "/confirmNotice", methods=["GET", "POST"], endpoint="confirm_notice_all")
+api.add_resource(ConfirmNotice, "/confirmNotice/<int:declineNoticeID>", methods=["GET", "POST", "DELETE"], endpoint="confirm_notice_with_id")
 
 # Setup database
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URL']

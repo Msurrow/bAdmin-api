@@ -32,15 +32,3 @@ user_membershiprequest_club = db.Table('user_membershiprequest_club',
 user_invited_practice = db.Table('user_invited_practice',
                                  db.Column('user_id', db.Integer, db.ForeignKey('user.id')),
                                  db.Column('practice_id', db.Integer, db.ForeignKey('practice.id')))
-
-# Helper table for modelling practices-has-confirmed-attendants relationship (many-to-many)
-# many-to-many: A user can have confirmed many practices and a pratice have many confirmed users
-user_confirmed_practice = db.Table('user_confirmed_practice',
-                                   db.Column('user_id', db.Integer, db.ForeignKey('user.id')),
-                                   db.Column('practice_id', db.Integer, db.ForeignKey('practice.id')))
-
-# Helper table for modelling practices-has-declined-attendants relationship (many-to-many)
-# many-to-many: A user can have declined many practices and a pratice have many declined users
-user_declined_practice = db.Table('user_declined_practice',
-                                  db.Column('user_id', db.Integer, db.ForeignKey('user.id')),
-                                  db.Column('practice_id', db.Integer, db.ForeignKey('practice.id')))

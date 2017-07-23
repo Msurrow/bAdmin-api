@@ -140,7 +140,7 @@ class Users(Resource):
         abort(501)
 
 """
-Resource for handling club-pecific temporally related requests on Club resource
+
 """
 class UserPractices(Resource):
 

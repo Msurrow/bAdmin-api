@@ -1,6 +1,6 @@
 from datetime import datetime
 from db_helper import db
-from db_helper import user_invited_practice, user_confirmed_practice, user_declined_practice
+from db_helper import user_invited_practice
 from club_model import Club
 
 class Practice(db.Model):
@@ -14,8 +14,14 @@ class Practice(db.Model):
     startTime = db.Column(db.TIMESTAMP(timezone=False), unique=False, nullable=False)
     durationMinutes = db.Column(db.Integer, unique=False, nullable=False)
     invited = db.relationship('User', secondary=user_invited_practice, backref=db.backref('invitedPractices', lazy='joined'))
-    confirmed = db.relationship('User', secondary=user_confirmed_practice, backref=db.backref('confirmedPractices', lazy='joined'))
-    declined = db.relationship('User', secondary=user_declined_practice, backref=db.backref('declinedPractices', lazy='joined'))
+
+    # Define one-to-many relationship with Practice: One Practice can have many
+    # ConfirmNotices, but a ConfirmNotice only has one Practice.
+    confirmed = db.relationship('ConfirmNotice', backref='practice', lazy='dynamic')
+
+    # Define one-to-many relationship with Practice: One Practice can have many
+    # DeclineNotices, but a DeclineNotice only has one Practice.
+    declined = db.relationship('DeclineNotice', backref='practice', lazy='dynamic')
 
     def __init__(self, name, club, startTime, durationMinutes):
         self.name = name
