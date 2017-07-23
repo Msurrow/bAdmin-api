@@ -17,6 +17,7 @@ from sqlalchemy import Date, cast
 from db_helper import db
 from auth_helper import auth
 
+import time
 
 """
 Resource for handling non user-specific actions on User resource

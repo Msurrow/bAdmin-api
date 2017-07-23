@@ -1,12 +1,13 @@
 import sys
 import os
-from flask import Flask, jsonify, request, abort, render_template
+import time
+from flask import Flask, jsonify, request, abort, render_template, g
 from flask_restful import Api
 from flask_cors import CORS
 import logging, logging.config, yaml
 # Import API resources
 from user_resource import Users, UserPractices
-from club_resource import Clubs, ClubPractices
+from club_resource import Clubs, ClubPractices, ClubPracticesDay
 from practice_resource import Practices
 import user_model
 import club_model
@@ -31,6 +32,7 @@ api.add_resource(Clubs, "/club", methods=["GET", "POST"], endpoint="clubs_all")
 api.add_resource(Clubs, "/club/<int:clubID>", methods=["GET", "PUT", "DELETE"], endpoint="club_with_id")
 api.add_resource(ClubPractices, "/club/<int:clubID>/practicesbyweek", methods=["GET"], endpoint="club_practies_by_week_all")
 api.add_resource(ClubPractices, "/club/<int:clubID>/practicesbyweek/<int:weekNumber>", methods=["GET"], endpoint="club_practies_by_week_with_number")
+api.add_resource(ClubPracticesDay, "/club/<int:clubID>/practicesbydate/<int:date>", methods=["GET"], endpoint="club_practies_by_date")
 
 api.add_resource(Practices, "/practice", methods=["GET", "POST"], endpoint="practices_all")
 api.add_resource(Practices, "/practice/<int:practiceID>", methods=["GET", "PUT", "DELETE"], endpoint="practice_with_id")
@@ -45,6 +47,16 @@ app.app_context().push()
 
 # Marshmallow must be initialized after sqlalchemy
 ma.init_app(app)
+
+@app.before_request
+def before_request():
+    g.ts_start = time.time()
+
+@app.teardown_request
+def teardown_request(exception=None):
+    ts_end = time.time()
+    l = logging.getLogger("root")
+    l.info("Request total time {}".format(ts_end - g.ts_start))
 
 if not app.debug:
     # In production mode, log to both stdout and logfile

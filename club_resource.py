@@ -149,7 +149,7 @@ class Clubs(Resource):
         abort(501)
 
 """
-Resource for handling club-pecific temporally related requests on Club resource
+Resource for handling club-specific temporally related requests on Club resource
 """
 class ClubPractices(Resource):
 
@@ -159,7 +159,7 @@ class ClubPractices(Resource):
         self.logger = logging.getLogger('root')
 
     @auth.login_required
-    def get(self, clubID, weekNumber=None):
+    def get(self, clubID, weekNumber=None, todayDate=None):
         if weekNumber:
             now = datetime.datetime.now()
             weekStart = datetime.datetime.strptime(str(now.year)+'-'+str(weekNumber)+'-1', "%G-%V-%u")
@@ -171,7 +171,40 @@ class ClubPractices(Resource):
                 .order_by(practice_model.Practice.startTime.asc())\
                 .all()
             return jsonify(self.practices_schema.dump(practices).data)
+        if todayDate:
+            pass
         else:
             # TODO: Do the same as above with weeknember, but wrap in for loop 
             # for and do for all weeks in year. return [week1:[prac1, prac2, ..], week2:[prac1, prac2, ..]]
             abort(501, message="Not implemented yet. GET /club/<id>/practicesbyweek/<weeknumber> with a specific week instead.")
+
+"""
+Resource for handling club specific requests for a specific date
+Date in the format of YYYYmmDD e.g. 20170720
+"""
+class ClubPracticesDay(Resource):
+
+    def __init__(self):
+        self.practice_schema = PracticeSchema()
+        self.practices_schema = PracticeSchema(many=True)
+        self.logger = logging.getLogger('root')
+
+    @auth.login_required
+    def get(self, clubID, date=None):
+        if date:
+            # TODO: Proper sanity check input
+            # Date should be yyyy-mm-dd without dashes, so 8 chars
+            if len(str(date)) == 8:
+                day_start = datetime.datetime.strptime(str(date), "%Y%m%d")
+                day_end = day_start + datetime.timedelta(hours=23, minutes=59)
+                practices = practice_model.Practice.query.\
+                    filter(practice_model.Practice.club_id == clubID,
+                           practice_model.Practice.startTime >= day_start,
+                           practice_model.Practice.startTime <= day_end)\
+                    .order_by(practice_model.Practice.startTime.asc())\
+                    .all()
+                return jsonify(self.practices_schema.dump(practices).data)
+            else:
+                abort(400, message="Bad date format. Should be YYYYmmdd, e.g. 20170720")
+        else:
+            abort(501, message="Not implemented yet. GET /club/<id>/practicesbydate/<date> with a specific week instead.")
