@@ -74,7 +74,6 @@ class ConfirmNotice(Resource):
             if len(existing_notice) > 0:
                 abort(500, message="Cannot create ConfirmNotice - the practice have an existing deline notice. Delete that first.")
 
-
             dt = dateutil.parser.parse(request.json['timestamp'])
             # Assume input timestring is in UTC and drop all timezone info
             dt = dt.replace(tzinfo=None)
