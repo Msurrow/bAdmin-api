@@ -11,6 +11,8 @@ from serialization_schemas import UserSchema, PracticeSchema
 import user_model
 import club_model
 import practice_model
+import confirm_notice_model
+import decline_notice_model
 # Imports for DB connection
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy import Date, cast
@@ -150,11 +152,11 @@ class UserPractices(Resource):
 
     @auth.login_required
     def get(self, userID):
-        practices = practice_model.Practice.query.\
-            filter((cast(practice_model.Practice.startTime, Date) >= date.today()) &
-                   ((practice_model.Practice.invited.any(user_model.User.id == userID)) |
-                   (practice_model.Practice.confirmed.any(user_model.User.id == userID)) |
-                   (practice_model.Practice.declined.any(user_model.User.id == userID))))\
-            .order_by(practice_model.Practice.startTime.asc())\
-            .all()
+        practices = db.session.query(practice_model.Practice)\
+                            .filter((cast(practice_model.Practice.startTime, Date) >= date.today()) &\
+                                  ((practice_model.Practice.confirmed.any(  confirm_notice_model.ConfirmNotice.user_id == userID)) |\
+                                  ( practice_model.Practice.declined.any(   decline_notice_model.DeclineNotice.user_id == userID)) |\
+                                  ( practice_model.Practice.invited.any(    user_model.User.id == userID))))\
+                            .all()
+
         return jsonify(self.practices_schema.dump(practices).data)
