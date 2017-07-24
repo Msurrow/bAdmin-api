@@ -43,10 +43,10 @@ api.add_resource(Practices, "/practice", methods=["GET", "POST"], endpoint="prac
 api.add_resource(Practices, "/practice/<int:practiceID>", methods=["GET", "PUT", "DELETE"], endpoint="practice_with_id")
 
 api.add_resource(DeclineNotice, "/declineNotice", methods=["GET", "POST"], endpoint="decline_notice_all")
-api.add_resource(DeclineNotice, "/declineNotice/<int:declineNoticeID>", methods=["GET", "POST", "DELETE"], endpoint="decline_notice_with_id")
+api.add_resource(DeclineNotice, "/declineNotice/<int:declineNoticeID>", methods=["GET", "DELETE"], endpoint="decline_notice_with_id")
 
 api.add_resource(ConfirmNotice, "/confirmNotice", methods=["GET", "POST"], endpoint="confirm_notice_all")
-api.add_resource(ConfirmNotice, "/confirmNotice/<int:declineNoticeID>", methods=["GET", "POST", "DELETE"], endpoint="confirm_notice_with_id")
+api.add_resource(ConfirmNotice, "/confirmNotice/<int:confirmNoticeID>", methods=["GET", "DELETE"], endpoint="confirm_notice_with_id")
 
 # Setup database
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URL']

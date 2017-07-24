@@ -90,7 +90,11 @@ class UserValidationSchema(Schema):
     practices = fields.List(fields.Int(), validate=_is_list_with_valid_practiceIDs)
 
 class DeclineNoticeValidationSchema(Schema):
+    userId = fields.Int(required=True, validate=_is_valid_user_ID)
+    practiceId= fields.Int(required=True, validate=_is_valid_practice_ID)
     timestamp = fields.DateTime(required=True)
 
 class ConfirmNoticeValidationSchema(Schema):
+    userId = fields.Int(required=True, validate=_is_valid_user_ID)
+    practiceId= fields.Int(required=True, validate=_is_valid_practice_ID)
     timestamp = fields.DateTime(required=True)

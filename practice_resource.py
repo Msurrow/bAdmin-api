@@ -63,7 +63,6 @@ class Practices(Resource):
             st = st.replace(tzinfo=None)
 
             invited = []
-
             # Fecth all invited users and add to practice
             if 'invited' in request.json:
                 user_objects = []
@@ -73,8 +72,12 @@ class Practices(Resource):
                         user_objects.append(u)
                 invited = user_objects
 
-            repeats = 1
+            # We do not touch confirmed or declined here (POST metod),
+            # as POST equals 'create' and then no one can have accepted,
+            # or declined yet.
 
+            # If repeats is set in request, create that number of practices
+            repeats = 1
             if 'repeats' in request.json and request.json['repeats'] is not None:
                 repeats = int(request.json['repeats'])
 
@@ -147,6 +150,10 @@ class Practices(Resource):
                 if u is not None:
                     user_objects.append(u)
             practice.invited = user_objects
+
+        # We do not deal with confirmed or declined here. Confirming or
+        # declining a practice is done through the ConfirmNotice or
+        # DeclineNotice ressources.
 
         try:
             db.session.commit()

@@ -11,6 +11,7 @@ from serialization_schemas import ConfirmNoticeSchema
 import user_model
 import practice_model
 import confirm_notice_model
+import decline_notice_model
 # Imports for DB connection
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from db_helper import db
@@ -54,16 +55,31 @@ class ConfirmNotice(Resource):
         # schema.
 
         # Get the User and Practice objects that this ConfirmNotice combines
-        user = user_model.User.query.get(request.json['user'])
-        practice = practice_model.Practice.query.get(request.json['practice'])
+        user = user_model.User.query.get(request.json['userId'])
+        practice = practice_model.Practice.query.get(request.json['practiceId'])
 
         # Get timestamp of when the practice was confirmd
         try:
+            # Start by checking a notice for this user-practice pair doesn't
+            # exist already.
+            existing_notice = confirm_notice_model.ConfirmNotice.query.filter(confirm_notice_model.ConfirmNotice.user_id == user.id,
+                                                                                confirm_notice_model.ConfirmNotice.practice_id == practice.id).all()
+            if len(existing_notice) > 0:
+                abort(500, message="Cannot create ConfirmNotice - the practice for this user is already confirmed.")
+
+            # Check that a DeclineNotice for this user-practice pair doesn't
+            # exist.
+            existing_notice = decline_notice_model.DeclineNotice.query.filter(decline_notice_model.DeclineNotice.user_id == user.id,
+                                                                                decline_notice_model.DeclineNotice.practice_id == practice.id).all()
+            if len(existing_notice) > 0:
+                abort(500, message="Cannot create ConfirmNotice - the practice have an existing deline notice. Delete that first.")
+
+
             dt = dateutil.parser.parse(request.json['timestamp'])
             # Assume input timestring is in UTC and drop all timezone info
             dt = dt.replace(tzinfo=None)
 
-            confirm_notice = confirm_notice_model.ConfirmNotice(user, practice, dt)
+            confirm_notice = confirm_notice_model.ConfirmNotice(dt)
             user.confirmedPractices.append(confirm_notice)
             practice.confirmed.append(confirm_notice)
 
@@ -84,7 +100,7 @@ class ConfirmNotice(Resource):
             self.logger.error(err)
             abort(500, message="Somehow the validations passed but the input still did not match the SQL schema. For security reasons no further details on the error will be provided other than a debug-code: {}. Please email the API developer with the debug-code and yell at him!".format(debug_code))
 
-        return jsonify(self.confirm_notice_schema.dump(confirm_notice).data)
+        return jsonify(self.confirm_notice_schmea.dump(confirm_notice).data)
 
     """
     There is no PUT methon. Once the confirm notice is created it cannot be

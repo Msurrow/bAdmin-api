@@ -11,6 +11,7 @@ from serialization_schemas import DeclineNoticeSchema
 import user_model
 import practice_model
 import decline_notice_model
+import confirm_notice_model
 # Imports for DB connection
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from db_helper import db
@@ -54,11 +55,25 @@ class DeclineNotice(Resource):
         # schema.
 
         # Get the User and Practice objects that this DeclineNotice combines
-        user = user_model.User.query.get(request.json['user'])
-        practice = practice_model.Practice.query.get(request.json['practice'])
+        user = user_model.User.query.get(request.json['userId'])
+        practice = practice_model.Practice.query.get(request.json['practiceId'])
 
         # Get timestamp of when the practice was declined
         try:
+            # Start by checking a notice for this user-practice pair doesn't
+            # exist already.
+            existing_notice = decline_notice_model.DeclineNotice.query.filter(decline_notice_model.DeclineNotice.user_id == user.id,
+                                                                                decline_notice_model.DeclineNotice.practice_id == practice.id).all()
+            if len(existing_notice) > 0:
+                abort(500, message="Cannot create DeclineNotice - the practice for this user is already declined.")
+
+            # Check that a ConfirmNotice for this user-practice pair doesn't
+            # exist.
+            existing_notice = confirm_notice_model.ConfirmNotice.query.filter(confirm_notice_model.ConfirmNotice.user_id == user.id,
+                                                                                confirm_notice_model.ConfirmNotice.practice_id == practice.id).all()
+            if len(existing_notice) > 0:
+                abort(500, message="Cannot create DeclineNotice - the practice have an existing confirm notice. Delete that first.")
+
             dt = dateutil.parser.parse(request.json['timestamp'])
             # Assume input timestring is in UTC and drop all timezone info
             dt = dt.replace(tzinfo=None)
@@ -84,7 +99,7 @@ class DeclineNotice(Resource):
             self.logger.error(err)
             abort(500, message="Somehow the validations passed but the input still did not match the SQL schema. For security reasons no further details on the error will be provided other than a debug-code: {}. Please email the API developer with the debug-code and yell at him!".format(debug_code))
 
-        return jsonify(self.decline_notice_schema.dump(decline_notice).data)
+        return jsonify(self.decline_notice_schmea.dump(decline_notice).data)
 
     """
     There is no PUT methon. Once the decline notice is created it cannot be

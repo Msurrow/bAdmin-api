@@ -27,7 +27,9 @@ class ClubSchema(ma.ModelSchema):
 
 
 class PracticeSchema(ma.ModelSchema):
-    invited = ma.Nested(UserSchema, many=True)
+    #invited = ma.Nested(UserSchema, many=True)
+    confirmed = ma.Nested(ConfirmNoticeSchema, many=True)
+    declined = ma.Nested(DeclineNoticeSchema, many=True)
 
     class Meta:
         model = practice_model.Practice
