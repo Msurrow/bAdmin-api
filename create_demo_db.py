@@ -32,24 +32,24 @@ with app.app_context():
     db_helper.db.session.add(test_club_1)
     db_helper.db.session.commit()
 
-    test_practice_1 = practice_model.Practice('A-træning', test_club_1, dateutil.parser.parse('2017-08-01T12:00:00'), 120)
+    test_practice_1 = practice_model.Practice('A-træning', test_club_1, dateutil.parser.parse('2017-08-20T12:00:00'), 120)
     test_practice_1.invited.append(test_user_1)
     cn1 = confirm_notice_model.ConfirmNotice(dateutil.parser.parse('2017-07-03T12:00:00'))
     test_practice_1.confirmed.append(cn1)
     test_user_2.confirmedPractices.append(cn1)
 
-    test_practice_2 = practice_model.Practice('A-træning', test_club_1, dateutil.parser.parse('2017-08-03T12:00:00'), 120)
+    test_practice_2 = practice_model.Practice('A-træning', test_club_1, dateutil.parser.parse('2017-08-22T12:00:00'), 120)
     test_practice_2.invited.append(test_user_2)
     dn1 = decline_notice_model.DeclineNotice(dateutil.parser.parse('2017-07-03T12:00:00'))
     test_practice_2.declined.append(dn1)
     test_user_1.declinedPractices.append(dn1)
 
-    test_practice_3 = practice_model.Practice('A-træning', test_club_1, dateutil.parser.parse('2017-08-05T12:00:00'), 120)
+    test_practice_3 = practice_model.Practice('A-træning', test_club_1, dateutil.parser.parse('2017-08-23T12:00:00'), 120)
     test_practice_3.invited.append(test_user_1)
     test_practice_3.invited.append(test_user_2)
 
     # Test data for week view table
-    test_practice_4 = practice_model.Practice('A-træning (Mandag)', test_club_1, dateutil.parser.parse('2017-08-09T12:00:00'), 120)
+    test_practice_4 = practice_model.Practice('A-træning (Mandag)', test_club_1, dateutil.parser.parse('2017-08-25T12:00:00'), 120)
     cn2 = confirm_notice_model.ConfirmNotice(dateutil.parser.parse('2017-07-03T12:00:00'))
     test_practice_4.confirmed.append(cn2)
     test_user_1.confirmedPractices.append(cn2)
@@ -60,12 +60,12 @@ with app.app_context():
     test_practice_4.confirmed.append(cn4)
     test_user_3.confirmedPractices.append(cn4)
 
-    test_practice_5 = practice_model.Practice('B-træning (Tirsdag)', test_club_1, dateutil.parser.parse('2017-08-10T12:00:00'), 120)
+    test_practice_5 = practice_model.Practice('B-træning (Tirsdag)', test_club_1, dateutil.parser.parse('2017-08-27T12:00:00'), 120)
     test_practice_5.invited.append(test_user_1)
     test_practice_5.invited.append(test_user_2)
     test_practice_5.invited.append(test_user_3)
 
-    test_practice_7 = practice_model.Practice('Fysisk (Onsdag)', test_club_1, dateutil.parser.parse('2017-08-11T08:00:00'), 120)
+    test_practice_7 = practice_model.Practice('Fysisk (Onsdag)', test_club_1, dateutil.parser.parse('2017-08-29T08:00:00'), 120)
     cn5 = confirm_notice_model.ConfirmNotice(dateutil.parser.parse('2017-07-03T12:00:00'))
     test_practice_7.confirmed.append(cn5)
     test_user_2.confirmedPractices.append(cn5)
@@ -73,7 +73,7 @@ with app.app_context():
     test_practice_7.confirmed.append(cn6)
     test_user_2.confirmedPractices.append(cn6)
 
-    test_practice_6 = practice_model.Practice('A-træning (Onsdag)', test_club_1, dateutil.parser.parse('2017-08-11T12:00:00'), 120)
+    test_practice_6 = practice_model.Practice('A-træning (Onsdag)', test_club_1, dateutil.parser.parse('2017-09-01T12:00:00'), 120)
     test_practice_6.invited.append(test_user_1)
     cn7 = confirm_notice_model.ConfirmNotice(dateutil.parser.parse('2017-07-03T12:00:00'))
     test_practice_6.confirmed.append(cn7)
@@ -82,7 +82,7 @@ with app.app_context():
     test_practice_6.declined.append(dn2)
     test_user_3.declinedPractices.append(dn2)
 
-    test_practice_8 = practice_model.Practice('B-træning (Torsdag)', test_club_1, dateutil.parser.parse('2017-08-12T12:00:00'), 120)
+    test_practice_8 = practice_model.Practice('B-træning (Torsdag)', test_club_1, dateutil.parser.parse('2017-09-03T12:00:00'), 120)
     dn3 = decline_notice_model.DeclineNotice(dateutil.parser.parse('2017-07-03T12:00:00'))
     test_practice_8.declined.append(dn3)
     test_user_1.declinedPractices.append(dn3)
@@ -91,7 +91,7 @@ with app.app_context():
     test_user_2.confirmedPractices.append(cn8)   
     test_practice_8.invited.append(test_user_3)
 
-    test_practice_9 = practice_model.Practice('Fysisk (Fredag)', test_club_1, dateutil.parser.parse('2017-08-13T12:00:00'), 120)
+    test_practice_9 = practice_model.Practice('Fysisk (Fredag)', test_club_1, dateutil.parser.parse('2017-09-05T12:00:00'), 120)
     dn4 = decline_notice_model.DeclineNotice(dateutil.parser.parse('2017-07-03T12:00:00'))
     test_practice_9.declined.append(dn4)
     test_user_1.declinedPractices.append(dn4)
