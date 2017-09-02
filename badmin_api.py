@@ -112,7 +112,7 @@ def get_auth_token():
 
     user = user_model.User.query.filter_by(email=request.authorization.username).first()
     if not user:
-        abort(400, "User does not exits")
+        abort(400, "User {} does not exits".format(request.authorization.username))
     token = user.generate_auth_token()
 
     l = logging.getLogger("root")
