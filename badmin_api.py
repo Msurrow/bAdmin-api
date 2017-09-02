@@ -1,7 +1,7 @@
 import sys
 import os
 import time
-from flask import Flask, jsonify, request, response, abort, render_template, g
+from flask import Flask, jsonify, request, abort, render_template, g
 from flask_restful import Api
 from flask_cors import CORS
 import logging, logging.config, yaml
@@ -107,9 +107,6 @@ def stats():
 @app.route('/token')
 @auth.login_required
 def get_auth_token():
-    response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
-    response.headers['Pragma'] = 'no-cache'
-
     if not request or not request.authorization:
         abort(400, "Missing HTTPBasic auth parameters")
 
@@ -118,7 +115,11 @@ def get_auth_token():
     l = logging.getLogger("root")
     l.info("/token with {}. Fetched user {}".format(request.authorization.username,user.id))
 
-    return jsonify({'userID':user.id,'token': token.decode('ascii')})
+    response = jsonify({'userID':user.id,'token': token.decode('ascii')})
+    response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+    response.headers['Pragma'] = 'no-cache'
+
+    return response
 
 if __name__ == "__main__":
     # When run with gunicorn this isn't called, and gunicorn will run as debug=false
