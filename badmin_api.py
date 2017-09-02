@@ -115,9 +115,6 @@ def get_auth_token():
         abort(400, "User {} does not exits".format(request.authorization.username))
     token = user.generate_auth_token()
 
-    l = logging.getLogger("root")
-    l.info("/token with {}. Fetched user {}".format(request.authorization.username,user.id))
-
     response = jsonify({'userID':user.id,'token': token.decode('ascii')})
     response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
     response.headers['Pragma'] = 'no-cache'
