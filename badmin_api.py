@@ -111,6 +111,8 @@ def get_auth_token():
         abort(400, "Missing HTTPBasic auth parameters")
 
     user = user_model.User.query.filter_by(email=request.authorization.username).first()
+    if not user:
+        abort(400, "User does not exits")
     token = user.generate_auth_token()
     l = logging.getLogger("root")
     l.info("/token with {}. Fetched user {}".format(request.authorization.username,user.id))
