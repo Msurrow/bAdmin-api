@@ -15,11 +15,9 @@ import confirm_notice_model
 import decline_notice_model
 # Imports for DB connection
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy import Date, cast
+from sqlalchemy import Date, cast, asc
 from db_helper import db
 from auth_helper import auth
-
-import time
 
 """
 Resource for handling non user-specific actions on User resource
@@ -157,6 +155,6 @@ class UserPractices(Resource):
                                   ((practice_model.Practice.confirmed.any(  confirm_notice_model.ConfirmNotice.user_id == userID)) |\
                                   ( practice_model.Practice.declined.any(   decline_notice_model.DeclineNotice.user_id == userID)) |\
                                   ( practice_model.Practice.invited.any(    user_model.User.id == userID))))\
-                            .all()
+                            .order_by(asc(practice_model.Practice.startTime)).all()
 
         return jsonify(self.practices_schema.dump(practices).data)
