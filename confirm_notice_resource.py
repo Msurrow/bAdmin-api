@@ -72,7 +72,7 @@ class ConfirmNotice(Resource):
             existing_notice = decline_notice_model.DeclineNotice.query.filter(decline_notice_model.DeclineNotice.user_id == user.id,
                                                                                 decline_notice_model.DeclineNotice.practice_id == practice.id).all()
             if len(existing_notice) > 0:
-                abort(500, message="Cannot create ConfirmNotice - the practice have an existing deline notice. Delete that first.")
+                abort(500, message="Cannot create ConfirmNotice - the practice have an existing decline notice. Delete that first.")
 
             dt = dateutil.parser.parse(request.json['timestamp'])
             # Assume input timestring is in UTC and drop all timezone info
@@ -113,7 +113,7 @@ class ConfirmNotice(Resource):
         confirm_notice = confirm_notice_model.ConfirmNotice.query.get(confirmNoticeID)
         if confirm_notice is None:
             # Problem solved?
-            abort(404, message="Cannot delete practice. ConfirmNotices with ID {} does not exist. .. problem solved?".format(confirmNoticeID))
+            abort(404, message="Cannot delete notice. ConfirmNotices with ID {} does not exist. .. problem solved?".format(confirmNoticeID))
         try:
             db.session.delete(confirm_notice)
             db.session.commit()

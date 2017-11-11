@@ -102,7 +102,7 @@ class DeclineNotice(Resource):
         return jsonify(self.decline_notice_schmea.dump(decline_notice).data)
 
     """
-    There is no PUT methon. Once the decline notice is created it cannot be
+    There is no PUT method. Once the decline notice is created it cannot be
     changed. It can be delete if the user changes her answer, but then DELETE
     is used.
     """
