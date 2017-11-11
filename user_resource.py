@@ -112,7 +112,7 @@ class Users(Resource):
         # If password is PUT'ed that means a change of password
         if 'password' in request.json:
             hashedPassword = user.hash_password(request.json['password'])
-            user.password = hashedPassword
+            user.hashed_password = hashedPassword
 
         # Fecth all users' clubs and add changes to user
         if 'clubs' in request.json:
