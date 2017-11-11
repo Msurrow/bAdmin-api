@@ -94,20 +94,27 @@ class Users(Resource):
         # then update it, otherwise leave as is.
         # All input params are validated in Marshmallow schema.
 
-        if 'name' in request.json:
-            user.name = request.json['name']
+        #######
+        # Only the user attributes that are actually implemented (end-user)
+        # funcationality to change is implemented here. Unused stuff is
+        # commented out.
+        ######
 
-        if 'email' in request.json:
-            user.email = request.json['email']
+        # if 'name' in request.json:
+        #     user.name = request.json['name']
 
-        if 'phone' in request.json:
-            user.phone = request.json['phone']
+        # if 'email' in request.json:
+        #     user.email = request.json['email']
 
+        # if 'phone' in request.json:
+        #     user.phone = request.json['phone']
+
+        # If password is PUT'ed that means a change of password
         if 'password' in request.json:
-            hashedPassword = request.json['password']
-            user.password = hashedPassword
+            hashedPassword = user.hash_password(request.json['password'])
+            user.hashed_password = hashedPassword
 
-        # Fecth all users' clubs and add to user
+        # Fecth all users' clubs and add changes to user
         if 'clubs' in request.json:
             club_objects = []
             for clubID in request.json['clubs']:
@@ -116,14 +123,14 @@ class Users(Resource):
                     club_objects.append(c)
             user.clubs = club_objects
 
-        # Fecth all users' practices and add to user
-        if 'practices' in request.json:
-            practice_objects = []
-            for practiceID in request.json['practice']:
-                c = practice_model.Practice.query.get(practiceID)
-                if c is not None:
-                    practice_objects.append(c)
-            user.clubs = practice_objects
+        # # Fecth all users' practices and add to user
+        # if 'practices' in request.json:
+        #     practice_objects = []
+        #     for practiceID in request.json['practice']:
+        #         c = practice_model.Practice.query.get(practiceID)
+        #         if c is not None:
+        #             practice_objects.append(c)
+        #     user.clubs = practice_objects
 
         try:
             db.session.commit()
