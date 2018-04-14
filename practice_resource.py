@@ -12,6 +12,9 @@ from serialization_schemas import PracticeSchema
 import user_model
 import club_model
 import practice_model
+import confirm_notice_model
+import decline_notice_model
+
 # Imports for DB connection
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from db_helper import db
@@ -149,6 +152,20 @@ class Practices(Resource):
                 u = user_model.User.query.get(userID)
                 if u is not None:
                     user_objects.append(u)
+            # If a player is uninvited, we need to remove any confirm/decline
+            # notice for that player for this practice
+            uninvited_players = set(map(lambda x: x.id, practice.invited)) - set(request.json['invited'])
+
+            confirmNoticeUninvited = db.session.query(confirm_notice_model.ConfirmNotice).filter((confirm_notice_model.ConfirmNotice.practice_id == practiceID) &
+                                                                            (confirm_notice_model.ConfirmNotice.user_id.in_(uninvited_players))).all()
+            declineNoticeUninvited = db.session.query(decline_notice_model.DeclineNotice).filter((decline_notice_model.DeclineNotice.practice_id == practiceID) &
+                                                                            (decline_notice_model.DeclineNotice.user_id.in_(uninvited_players))).all()
+            for cn in confirmNoticeUninvited:
+                db.session.delete(cn)
+            for dn in declineNoticeUninvited:
+                db.session.delete(dn)
+           
+            # Update the invited players
             practice.invited = user_objects
 
         # We do not deal with confirmed or declined here. Confirming or
