@@ -95,7 +95,7 @@ def index():
 
 @app.route("/stats")
 def stats():
-    _numUsers = user_model.User.query.count()
+    _numUsers = user_model.User.query.count() 
     _numClubs = club_model.Club.query.count()
     _numPractices = practice_model.Practice.query.count()
     _numPlayerPracticeRelationInvited = db.engine.execute("select count(*) from user_invited_practice;").scalar()

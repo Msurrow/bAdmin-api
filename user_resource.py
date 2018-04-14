@@ -157,11 +157,12 @@ class UserPractices(Resource):
 
     @auth.login_required
     def get(self, userID):
+        # We only need to return practices where the player is invited
+        # since we keep player in invited list af confirm/decline (tracked by
+        # ConfirmNotice or DeclineNotice)
         practices = db.session.query(practice_model.Practice)\
-                            .filter((cast(practice_model.Practice.startTime, Date) >= date.today()) &\
-                                  ((practice_model.Practice.confirmed.any(  confirm_notice_model.ConfirmNotice.user_id == userID)) |\
-                                  ( practice_model.Practice.declined.any(   decline_notice_model.DeclineNotice.user_id == userID)) |\
-                                  ( practice_model.Practice.invited.any(    user_model.User.id == userID))))\
+                            .filter((cast(practice_model.Practice.startTime, Date) >= date.today()) &
+                                  (practice_model.Practice.invited.any(user_model.User.id == userID)))\
                             .order_by(asc(practice_model.Practice.startTime)).all()
 
         return jsonify(self.practices_schema.dump(practices).data)
